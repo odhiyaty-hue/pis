@@ -1,0 +1,34 @@
+<h1 class="title">المباريات</h1>
+
+<div class="btn-group" style="display:flex;gap:10px;margin-bottom:15px;">
+    <button class="btn btn-primary" id="tab-groups" style="flex:1">دور المجموعات</button>
+    <button class="btn btn-secondary" id="tab-knockout"
+        style="flex:1; border-color:var(--text-muted); color:var(--text-muted)">الأدوار الإقصائية</button>
+</div>
+
+<div id="matches-container">
+    <p class="text-center mt-2" style="color:var(--text-muted)">جاري تحميل المباريات...</p>
+</div>
+
+<!-- Modal for reporting result -->
+<div id="result-modal" class="hidden"
+    style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);">
+    <div class="card neon-border" style="width: 90%; max-width: 400px;">
+        <h3 class="text-center mb-2" style="color:var(--neon-green)">رفع نتيجة المباراة</h3>
+        <input type="hidden" id="modal-match-id">
+        <div class="form-group">
+            <label id="modal-p1-label">اللاعب 1 (أهداف)</label>
+            <input type="number" id="modal-score1" min="0" required>
+        </div>
+        <div class="form-group">
+            <label id="modal-p2-label">اللاعب 2 (أهداف)</label>
+            <input type="number" id="modal-score2" min="0" required>
+        </div>
+        <div class="form-group">
+            <label>صورة النتيجة (Screenshot)</label>
+            <input type="file" id="modal-screenshot" accept="image/*" required>
+        </div>
+        <button class="btn btn-primary" id="btn-submit-result">إرسال للتحقق</button>
+        <button class="btn btn-danger mt-1" id="btn-close-modal">إلغاء</button>
+    </div>
+</div>

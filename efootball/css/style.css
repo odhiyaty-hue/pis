@@ -1,0 +1,295 @@
+:root {
+    --bg-dark: #0a0a0a;
+    --bg-card: #141414;
+    --neon-green: #39ff14;
+    --neon-blue: #00f3ff;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --danger: #ff3366;
+    --nav-bg: rgba(20, 20, 20, 0.95);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Cairo', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+#app-container {
+    width: 100%;
+    max-width: 480px; /* Mobile Only Constraint */
+    background-color: var(--bg-dark);
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#main-content {
+    flex: 1;
+    padding: 20px 20px 80px 20px; /* space for bottom nav */
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Bottom Navigation */
+#bottom-nav {
+    position: fixed; /* Fixed to bottom of container */
+    bottom: 0;
+    width: 100%;
+    max-width: 480px;
+    height: 70px;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+}
+
+.nav-item {
+    color: var(--text-muted);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+    gap: 4px;
+    transition: all 0.3s;
+}
+
+.nav-item i {
+    font-size: 20px;
+}
+
+.nav-item.active {
+    color: var(--neon-green);
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+
+.nav-item.signup-btn {
+    color: var(--neon-blue);
+}
+.nav-item.signup-btn.active {
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+.nav-item.hidden {
+    display: none !important;
+}
+
+/* Component Styles */
+.card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s;
+}
+
+.neon-border {
+    border: 1px solid var(--neon-green);
+    box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.1);
+}
+
+h1.title {
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--neon-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+h1.title.blue {
+    color: var(--neon-blue);
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s;
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, var(--neon-green), #2db30e);
+    color: #000;
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.2);
+}
+
+/* Loader */
+#loader {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+#loader.hidden { display: none; }
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(57, 255, 20, 0.3);
+    border-top-color: var(--neon-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Toasts */
+#toast-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    left: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast {
+    background: var(--bg-card);
+    border-right: 4px solid var(--neon-green);
+    padding: 12px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    animation: slideInDown 0.3s forwards, fadeOut 0.3s forwards 3s;
+}
+.toast.error { border-right-color: var(--danger); }
+
+/* Utilities */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 10px; }
+.mt-2 { margin-top: 20px; }
+.mb-1 { margin-bottom: 10px; }
+.mb-2 { margin-bottom: 20px; }
+
+/* Grid for Groups/Matches */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 10px auto;
+    display: block;
+    border: 2px solid var(--neon-blue);
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.badge-success { background: rgba(57, 255, 20, 0.2); color: var(--neon-green); }
+.badge-warning { background: rgba(255, 204, 0, 0.2); color: #ffcc00; }
+.badge-danger { background: rgba(255, 51, 102, 0.2); color: var(--danger); }
+
+/* Player List Items */
+.player-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    justify-content: space-between;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Animations */
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; visibility: hidden; } }

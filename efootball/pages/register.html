@@ -1,0 +1,19 @@
+<h1 class="title blue">تسجيل لاعب جديد</h1>
+<div class="card neon-border">
+    <form id="register-form">
+        <div class="form-group">
+            <label>الاسم الحقيقي</label>
+            <input type="text" id="real-name" placeholder="مثال: أحمد محمد" required>
+        </div>
+        <div class="form-group">
+            <label>اسم החساب داخل اللعبة (Game Name)</label>
+            <input type="text" id="game-name" placeholder="User123" required>
+        </div>
+        <div class="form-group">
+            <label>صورة شخصية (أو شعار فريقك)</label>
+            <input type="file" id="avatar-file" accept="image/*" required>
+            <img id="avatar-preview" class="avatar-preview hidden" src="" alt="preview">
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-register">تسجيل في البطولة</button>
+    </form>
+</div>

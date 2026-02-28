@@ -1,0 +1,37 @@
+<h1 class="title" style="color: var(--danger)">لوحة التحكم</h1>
+
+<div class="card neon-border" style="border-color: var(--danger)">
+    <h3 style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">إدارة البطولة
+    </h3>
+    <button class="btn btn-primary" id="btn-generate-groups">إنشاء المجموعات (قرعة)</button>
+    <button class="btn btn-secondary" id="btn-generate-knockout"
+        style="border-color:var(--danger);color:var(--danger)">إنشاء شجرة الإقصاء</button>
+    <button class="btn btn-secondary"
+        onclick="localStorage.removeItem('isAdmin'); window.navigate('/'); window.location.reload();">تسجيل
+        الخروج</button>
+</div>
+
+<div class="card mt-2">
+    <h3 style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">طلبات التسجيل
+        (<span id="pending-count">0</span>)</h3>
+    <div id="admin-pending-players" class="player-list"></div>
+</div>
+
+<div class="card mt-2">
+    <h3 style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">نتائج بانتظار
+        الموافقة (<span id="matches-count">0</span>)</h3>
+    <div id="admin-pending-matches"></div>
+</div>
+
+<!-- Modal for admin to view match proof -->
+<div id="admin-match-modal" class="hidden"
+    style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:3000; display:flex; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
+    <h3 class="mb-2" style="color:var(--neon-green)">صورة النتيجة المرفقة</h3>
+    <img id="admin-proof-img" src="" style="max-width:100%; max-height:60vh; border-radius:8px; margin-bottom:20px;">
+    <div style="display:flex; gap:10px; width:100%; max-width:400px;">
+        <button class="btn btn-primary" id="btn-approve-match" style="flex:1">موافقة وتحديث النقاط</button>
+        <button class="btn btn-danger" id="btn-reject-match" style="flex:1">رفض النتيجة</button>
+    </div>
+    <button class="btn btn-secondary mt-1" id="btn-close-admin-modal"
+        style="width:100%; max-width:400px; border:none;">إغلاق</button>
+</div>
