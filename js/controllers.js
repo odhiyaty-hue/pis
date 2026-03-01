@@ -1,6 +1,6 @@
 import { db, UI, navigate } from './app.js';
 import {
-    collection, addDoc, getDocs, doc, updateDoc,
+    collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
     query, where, orderBy, getDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
@@ -16,6 +16,21 @@ const DB = {
     getTournaments: () => getDocs(query(tourColl, orderBy('createdAt', 'desc'))).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))),
     getTournament: (id) => getDoc(doc(db, 'tournaments', id)).then(d => d.exists() ? { id: d.id, ...d.data() } : null),
     updateTournament: (id, data) => updateDoc(doc(db, 'tournaments', id), data),
+    async deleteTournament(tid) {
+        const batch = [];
+        // Delete matches
+        const qGroups = await getDocs(query(matchesColl, where('tournamentId', '==', tid)));
+        qGroups.docs.forEach(d => batch.push(deleteDoc(d.ref)));
+        // Delete groups
+        const qG = await getDocs(query(groupsColl, where('tournamentId', '==', tid)));
+        qG.docs.forEach(d => batch.push(deleteDoc(d.ref)));
+        // Delete players
+        const qP = await getDocs(query(playersColl, where('tournamentId', '==', tid)));
+        qP.docs.forEach(d => batch.push(deleteDoc(d.ref)));
+        // Delete tournament
+        batch.push(deleteDoc(doc(db, 'tournaments', tid)));
+        await Promise.all(batch);
+    },
 
     // Players
     addPlayer: (d) => addDoc(playersColl, { ...d, status: 'pending', group: null, points: 0, goalsFor: 0, goalsAgainst: 0, eliminated: false, createdAt: serverTimestamp() }),
@@ -219,9 +234,14 @@ async function loadAdminTournaments() {
                 <span style="font-size:12px;color:${statusColor};">${statusText}</span>
             </div>
             <div style="font-size:12px;color:var(--muted);margin:6px 0;">${t.maxPlayers} لاعب · ${t.playersPerGroup} في كل مجموعة</div>
-            <button onclick="selectAdminTour('${t.id}')" style="background:var(--bg-glass);border:1px solid var(--border);color:var(--text);width:100%;border-radius:10px;padding:8px;font-family:'Cairo',sans-serif;font-weight:600;cursor:pointer;font-size:13px;margin-top:6px;">
-                <i class="fas fa-sliders"></i> إدارة البطولة
-            </button>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+                <button onclick="selectAdminTour('${t.id}')" style="background:var(--bg-glass);border:1px solid var(--border);color:var(--text);flex:3;border-radius:10px;padding:8px;font-family:'Cairo',sans-serif;font-weight:600;cursor:pointer;font-size:13px;">
+                    <i class="fas fa-sliders"></i> إدارة
+                </button>
+                <button onclick="deleteTournament('${t.id}')" style="background:rgba(255,59,107,0.1);border:1px solid var(--danger);color:var(--danger);flex:1;border-radius:10px;padding:8px;font-family:'Cairo',sans-serif;font-weight:600;cursor:pointer;font-size:13px;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>`;
     }).join('');
 }
@@ -511,6 +531,27 @@ async function initBracket() {
     if (tid) await renderBracket(tid, container);
     else container.innerHTML = '<div class="empty-state"><i class="fas fa-sitemap"></i><p>لا توجد بطولات جارية</p></div>';
 }
+
+window.deleteTournament = async (tid) => {
+    if (!confirm('هل أنت متأكد من مسح هذه البطولة وجميع بياناتها (اللاعبين، المجموعات، المباريات)؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    UI.showLoader();
+    try {
+        await DB.deleteTournament(tid);
+        UI.toast('تم مسح البطولة بنجاح');
+        // If current active tour was this one, hide sections
+        if (adminActiveTour === tid) {
+            document.getElementById('admin-players-section').classList.add('hidden');
+            document.getElementById('admin-matches-section').classList.add('hidden');
+            adminActiveTour = null;
+        }
+        await loadAdminTournaments();
+    } catch (e) {
+        console.error(e);
+        UI.toast('خطأ في مسح البطولة', 'error');
+    } finally {
+        UI.hideLoader();
+    }
+};
 
 async function renderBracket(tid, container) {
     UI.showLoader();

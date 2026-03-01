@@ -12,22 +12,19 @@ service cloud.firestore {
     // In a real scenario with no backend auth, you'd add a "adminPin" to the document and check it.
     
     match /players/{playerId} {
-      allow read: if true;
-      allow create: if true; // anyone can register
-      allow update: if true; // needed by frontend to update points/goals unless we use an admin token field
-      allow delete: if false; // no deletions allowed
+      allow read, create, update, delete: if true;
     }
     
     match /groups/{groupId} {
-      allow read: if true;
-      allow create, update: if true; 
-      allow delete: if false;
+      allow read, create, update, delete: if true;
     }
     
     match /matches/{matchId} {
-      allow read: if true;
-      allow create, update: if true;
-      allow delete: if false;
+      allow read, create, update, delete: if true;
+    }
+
+    match /tournaments/{tourId} {
+      allow read, create, update, delete: if true;
     }
     
     match /{document=**} {
