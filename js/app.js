@@ -54,10 +54,14 @@ async function loadRoute(path) {
         if (!res.ok) throw new Error('404');
         UI.main.innerHTML = await res.text();
 
-        // Update background class
+        // Update background class specifically for each route
         const container = document.getElementById('app-container');
-        const pageName = path === '/' ? 'home' : path.slice(1);
-        container.className = ''; // Reset
+        const pageName = path === '/' ? 'home' : path.slice(1).replace(/\//g, '-');
+
+        // Only remove previous background classes
+        container.classList.forEach(cls => {
+            if (cls.startsWith('bg-')) container.classList.remove(cls);
+        });
         container.classList.add(`bg-${pageName}`);
 
         UI.main.classList.remove('page-enter');
