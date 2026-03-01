@@ -1,14 +1,17 @@
-<h1 class="title" style="color: var(--danger)">دخول الإدارة</h1>
-<div class="card neon-border" style="border-color: var(--danger)">
+<p class="page-title red"><i class="fas fa-shield-halved"></i> دخول الإدارة</p>
+
+<div class="card" style="border-color: rgba(255,59,107,.2);">
     <form id="login-form">
         <div class="form-group">
-            <label>اسم المستخدم</label>
-            <input type="text" id="admin-user" required>
+            <label><i class="fas fa-user-shield"></i> اسم المستخدم</label>
+            <input type="text" id="admin-user" placeholder="admin" autocomplete="off" required>
         </div>
         <div class="form-group">
-            <label>كلمة المرور</label>
-            <input type="password" id="admin-pass" required>
+            <label><i class="fas fa-lock"></i> كلمة المرور</label>
+            <input type="password" id="admin-pass" placeholder="••••••" required>
         </div>
-        <button type="submit" class="btn btn-danger" style="background:var(--danger); color:#fff">تسجيل الدخول</button>
+        <button type="submit" class="btn btn-danger-solid mt-1">
+            <i class="fas fa-right-to-bracket"></i> تسجيل الدخول
+        </button>
     </form>
 </div>

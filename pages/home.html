@@ -1,20 +1,32 @@
-<h1 class="title">🏆 بطولة <br><span class="blue">eFootball</span></h1>
-<div class="card text-center neon-border mt-2">
-    <i class="fas fa-trophy" style="font-size: 60px; color: var(--neon-green); margin-bottom: 15px;"></i>
-    <p class="mb-2" style="color: var(--text-muted); line-height: 1.6; font-size: 14px;">أهلاً بك في البطولة الأهم للعبة
-        eFootball. واجهة مخصصة للمحترفين لتنظيم وإدارة المباريات والمجموعات بكل سهولة.</p>
-    <button class="btn btn-primary" onclick="window.navigate('/register')">سجل الآن</button>
+<div class="hero">
+    <i class="fas fa-futbol hero-icon"></i>
+    <h1>بطولة <span>eFootball</span></h1>
+    <p>المنصة الاحترافية لتنظيم البطولات والمتابعة الكاملة للمباريات</p>
 </div>
 
+<button class="btn btn-primary" onclick="navigate('/register')">
+    <i class="fas fa-user-plus"></i> سجّل في البطولة الآن
+</button>
+
 <div class="grid-2 mt-2">
-    <div class="card text-center" onclick="window.navigate('/groups')" style="cursor: pointer;">
-        <i class="fas fa-users" style="font-size: 24px; color: var(--neon-blue); margin-bottom: 10px;"></i>
-        <h3 style="font-size: 14px; margin-bottom: 5px;">المجموعات</h3>
-        <p style="font-size: 12px; color: var(--text-muted);">تابع ترتيب اللاعبين</p>
+    <div class="card glow" onclick="navigate('/groups')" style="cursor:pointer;text-align:center;">
+        <i class="fas fa-users" style="font-size:28px;color:var(--neon);display:block;margin-bottom:8px;"></i>
+        <strong>المجموعات</strong>
+        <p class="text-muted" style="font-size:12px;margin-top:4px;">الترتيب والنقاط</p>
     </div>
-    <div class="card text-center" onclick="window.navigate('/matches')" style="cursor: pointer;">
-        <i class="fas fa-gamepad" style="font-size: 24px; color: var(--danger); margin-bottom: 10px;"></i>
-        <h3 style="font-size: 14px; margin-bottom: 5px;">المباريات</h3>
-        <p style="font-size: 12px; color: var(--text-muted);">أحدث النتائج والمواجهات</p>
+    <div class="card glow-blue" onclick="navigate('/matches')" style="cursor:pointer;text-align:center;">
+        <i class="fas fa-gamepad" style="font-size:28px;color:var(--neon-blue);display:block;margin-bottom:8px;"></i>
+        <strong>المباريات</strong>
+        <p class="text-muted" style="font-size:12px;margin-top:4px;">النتائج والمواجهات</p>
+    </div>
+    <div class="card" onclick="navigate('/bracket')" style="cursor:pointer;text-align:center;">
+        <i class="fas fa-sitemap" style="font-size:28px;color:#ffc800;display:block;margin-bottom:8px;"></i>
+        <strong>الإقصاء</strong>
+        <p class="text-muted" style="font-size:12px;margin-top:4px;">شجرة البطولة</p>
+    </div>
+    <div class="card" onclick="navigate('/login')" style="cursor:pointer;text-align:center;">
+        <i class="fas fa-cogs" style="font-size:28px;color:var(--danger);display:block;margin-bottom:8px;"></i>
+        <strong>الإدارة</strong>
+        <p class="text-muted" style="font-size:12px;margin-top:4px;">للمشرف فقط</p>
     </div>
 </div>

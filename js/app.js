@@ -1,108 +1,98 @@
-import { UI } from './ui.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-class AppRouter {
-    constructor() {
-        this.routes = {
-            '/': 'pages/home.html',
-            '/register': 'pages/register.html',
-            '/groups': 'pages/groups.html',
-            '/matches': 'pages/matches.html',
-            '/bracket': 'pages/bracket.html',
-            '/admin': 'pages/admin.html',
-            '/login': 'pages/login.html'
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyDy_ZCcsXGU7su6xHJY54OtuLcXOB8sZNs",
+    authDomain: "pesef-43609.firebaseapp.com",
+    projectId: "pesef-43609",
+    storageBucket: "pesef-43609.firebasestorage.app",
+    messagingSenderId: "11775033418",
+    appId: "1:11775033418:web:9534cffaf99a085e07e6b3"
+};
 
-        this.init();
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+
+// ---- UI HELPERS ----
+export const UI = {
+    get loader() { return document.getElementById('loader'); },
+    get main() { return document.getElementById('main-content'); },
+    get toasts() { return document.getElementById('toast-container'); },
+
+    showLoader() { this.loader.classList.remove('hidden'); },
+    hideLoader() { this.loader.classList.add('hidden'); },
+
+    toast(msg, type = 'success') {
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.innerHTML = `<i class="fas fa-${type === 'error' ? 'circle-xmark' : 'circle-check'}"></i> ${msg}`;
+        this.toasts.appendChild(t);
+        setTimeout(() => t.remove(), 3500);
     }
+};
 
-    init() {
-        // Handle nav clicks
-        document.querySelectorAll('.nav-item').forEach(nav => {
-            nav.addEventListener('click', (e) => {
-                e.preventDefault();
-                const path = nav.getAttribute('data-path');
-                this.navigate(path);
-            });
-        });
+// ---- ROUTER ----
+const ROUTES = {
+    '/': 'pages/home.html',
+    '/register': 'pages/register.html',
+    '/groups': 'pages/groups.html',
+    '/matches': 'pages/matches.html',
+    '/bracket': 'pages/bracket.html',
+    '/admin': 'pages/admin.html',
+    '/login': 'pages/login.html'
+};
 
-        // Handle browser back/forward
-        window.addEventListener('popstate', (e) => {
-            this.handleRoute(window.location.pathname);
-        });
+function updateNav(path) {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    const active = document.querySelector(`.nav-item[data-path="${path}"]`);
+    if (active) active.classList.add('active');
+}
 
-        // Check login state
-        const isAdmin = localStorage.getItem('isAdmin') === 'true';
-        if (isAdmin) {
-            document.getElementById('nav-admin').classList.remove('hidden');
-        }
-
-        // Initial route map depending on where we land
-        // Since we don't have a real server, we use hash or simple path if supported
-        // For simplicity, we track state in a variable or hash.
-        // Let's use hash based routing to ensure it works on Live Server without rewrite rules
-        if (!window.location.hash) {
-            window.location.hash = '#/';
-        }
-        this.handleRoute(window.location.hash.slice(1) || '/');
-
-        // Listen to hash changes too
-        window.addEventListener('hashchange', () => {
-            this.handleRoute(window.location.hash.slice(1) || '/');
-        });
-    }
-
-    navigate(path) {
-        window.location.hash = '#' + path;
-        // update nav active state
-        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-        const activeNav = document.querySelector(`.nav-item[data-path="${path}"]`);
-        if (activeNav) activeNav.classList.add('active');
-    }
-
-    async handleRoute(path) {
-        let file = this.routes[path] || this.routes['/'];
-
-        UI.showLoader();
-        try {
-            const response = await fetch(file);
-            if (!response.ok) throw new Error('Page not found');
-            const html = await response.text();
-
-            // Inject content
-            UI.mainContent.innerHTML = html;
-
-            // Re-execute scripts if any exist in the injected template
-            // We use modules, so we'll init specific page handlers dynamically
-            this.initPageHandler(path);
-
-        } catch (error) {
-            console.error('Routing error:', error);
-            UI.showToast('حدث خطأ في تحميل الصفحة', 'error');
-            UI.mainContent.innerHTML = '<h1 class="title">خطأ 404 - الصفحة غير موجودة</h1>';
-        } finally {
-            UI.hideLoader();
-        }
-    }
-
-    async initPageHandler(path) {
-        // In a more robust setup, each HTML could load its own script.
-        // But here we dispatch a custom event or dynamically import
-        try {
-            // Examples: import('./handlers/register.js')
-            // For now, we will dispatch an event on document with the page name
-            const pageName = path === '/' ? 'home' : path.slice(1);
-            const event = new CustomEvent('pageLoaded', { detail: { page: pageName } });
-            document.dispatchEvent(event);
-        } catch (e) {
-            console.error(e);
-        }
+async function loadRoute(path) {
+    const file = ROUTES[path] || ROUTES['/'];
+    UI.showLoader();
+    try {
+        const res = await fetch(file + '?v=' + Date.now());
+        if (!res.ok) throw new Error('404');
+        UI.main.innerHTML = await res.text();
+        UI.main.classList.remove('page-enter');
+        void UI.main.offsetWidth;
+        UI.main.classList.add('page-enter');
+        const name = path === '/' ? 'home' : path.slice(1);
+        document.dispatchEvent(new CustomEvent('pageLoaded', { detail: { page: name } }));
+    } catch (e) {
+        UI.main.innerHTML = '<div class="error-page"><i class="fas fa-triangle-exclamation"></i><p>خطأ في تحميل الصفحة</p></div>';
+        UI.toast('خطأ في تحميل الصفحة', 'error');
+    } finally {
+        UI.hideLoader();
     }
 }
 
-// Global App instance
-window.appRouter = new AppRouter();
+export function navigate(path) {
+    window.location.hash = '#' + path;
+    updateNav(path);
+}
+window.navigate = navigate;
 
-// Provide a global way to navigate (like inside button listeners)
-window.navigate = (path) => {
-    window.appRouter.navigate(path);
-};
+// Boot
+window.addEventListener('hashchange', () => {
+    const path = window.location.hash.slice(1) || '/';
+    updateNav(path);
+    loadRoute(path);
+});
+
+// Admin check
+if (localStorage.getItem('isAdmin') === 'true') {
+    document.getElementById('nav-admin')?.classList.remove('hidden');
+}
+
+// Nav click handlers
+document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => navigate(btn.dataset.path));
+});
+
+// Initial route
+const initPath = window.location.hash.slice(1) || '/';
+window.location.hash = '#' + initPath;
+updateNav(initPath);
+loadRoute(initPath);

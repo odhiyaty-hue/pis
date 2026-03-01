@@ -1,37 +1,54 @@
-<h1 class="title" style="color: var(--danger)">لوحة التحكم</h1>
+<p class="page-title red"><i class="fas fa-cogs"></i> لوحة التحكم</p>
 
-<div class="card neon-border" style="border-color: var(--danger)">
-    <h3 style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">إدارة البطولة
+<div class="card" style="border-color:rgba(255,59,107,.2); margin-bottom:12px;">
+    <h3 style="margin-bottom:12px; font-size:15px; color:var(--muted);">إدارة البطولة</h3>
+    <button class="btn btn-primary" id="btn-generate-groups">
+        <i class="fas fa-shuffle"></i> إنشاء المجموعات (قرعة)
+    </button>
+    <button class="btn btn-outline-blue" id="btn-generate-knockout">
+        <i class="fas fa-sitemap"></i> إنشاء شجرة الإقصاء
+    </button>
+    <div class="divider"></div>
+    <button class="btn btn-danger" id="btn-logout">
+        <i class="fas fa-right-from-bracket"></i> تسجيل الخروج
+    </button>
+</div>
+
+<div class="card">
+    <h3 style="font-size:15px; margin-bottom:12px;">
+        <i class="fas fa-user-clock" style="color:var(--neon);"></i>
+        طلبات التسجيل <span id="pending-count" style="color:var(--neon);font-size:18px;font-weight:900;"></span>
     </h3>
-    <button class="btn btn-primary" id="btn-generate-groups">إنشاء المجموعات (قرعة)</button>
-    <button class="btn btn-secondary" id="btn-generate-knockout"
-        style="border-color:var(--danger);color:var(--danger)">إنشاء شجرة الإقصاء</button>
-    <button class="btn btn-secondary"
-        onclick="localStorage.removeItem('isAdmin'); window.navigate('/'); window.location.reload();">تسجيل
-        الخروج</button>
+    <div id="admin-pending-players"></div>
 </div>
 
-<div class="card mt-2">
-    <h3 style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">طلبات التسجيل
-        (<span id="pending-count">0</span>)</h3>
-    <div id="admin-pending-players" class="player-list"></div>
-</div>
-
-<div class="card mt-2">
-    <h3 style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">نتائج بانتظار
-        الموافقة (<span id="matches-count">0</span>)</h3>
+<div class="card">
+    <h3 style="font-size:15px; margin-bottom:12px;">
+        <i class="fas fa-hourglass-half" style="color:var(--neon-blue);"></i>
+        نتائج بانتظار الموافقة <span id="matches-count"
+            style="color:var(--neon-blue);font-size:18px;font-weight:900;"></span>
+    </h3>
     <div id="admin-pending-matches"></div>
 </div>
 
-<!-- Modal for admin to view match proof -->
-<div id="admin-match-modal" class="hidden"
-    style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:3000; display:flex; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
-    <h3 class="mb-2" style="color:var(--neon-green)">صورة النتيجة المرفقة</h3>
-    <img id="admin-proof-img" src="" style="max-width:100%; max-height:60vh; border-radius:8px; margin-bottom:20px;">
-    <div style="display:flex; gap:10px; width:100%; max-width:400px;">
-        <button class="btn btn-primary" id="btn-approve-match" style="flex:1">موافقة وتحديث النقاط</button>
-        <button class="btn btn-danger" id="btn-reject-match" style="flex:1">رفض النتيجة</button>
+<!-- Admin Match Modal -->
+<div id="admin-match-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-handle"></div>
+        <p style="text-align:center; font-weight:700; font-size:16px; margin-bottom:16px; color:var(--neon);">
+            <i class="fas fa-image"></i> صورة النتيجة
+        </p>
+        <img id="admin-proof-img" src=""
+            style="width:100%; border-radius:12px; margin-bottom:16px; max-height:260px; object-fit:contain;">
+        <button class="btn btn-primary" id="btn-approve-match">
+            <i class="fas fa-check"></i> موافقة وتحديث النقاط
+        </button>
+        <button class="btn btn-danger" id="btn-reject-match">
+            <i class="fas fa-xmark"></i> رفض النتيجة
+        </button>
+        <button class="btn btn-outline" id="btn-close-admin-modal"
+            style="border-color:var(--muted);color:var(--muted);">
+            إغلاق
+        </button>
     </div>
-    <button class="btn btn-secondary mt-1" id="btn-close-admin-modal"
-        style="width:100%; max-width:400px; border:none;">إغلاق</button>
 </div>
