@@ -58,10 +58,9 @@ async function loadRoute(path) {
         const container = document.getElementById('app-container');
         const pageName = path === '/' ? 'home' : path.slice(1).replace(/\//g, '-');
 
-        // Only remove previous background classes
-        container.classList.forEach(cls => {
-            if (cls.startsWith('bg-')) container.classList.remove(cls);
-        });
+        // Remove previous background classes using a robust method
+        const classesToRemove = Array.from(container.classList).filter(c => c.startsWith('bg-'));
+        classesToRemove.forEach(cls => container.classList.remove(cls));
         container.classList.add(`bg-${pageName}`);
 
         UI.main.classList.remove('page-enter');
