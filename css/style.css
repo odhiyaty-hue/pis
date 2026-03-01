@@ -21,12 +21,8 @@
 }
 
 body {
-    background: var(--bg);
-    /* Using a high-quality stadium background as a base, user can replace this URL with their specific one if needed */
-    background-image: linear-gradient(rgba(7, 10, 15, 0.85), rgba(7, 10, 15, 0.85)), url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1000');
-    background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
+    background: #000;
+    /* Deep black outside the mobile frame */
     color: var(--text);
     font-family: 'Cairo', sans-serif;
     display: flex;
@@ -42,7 +38,14 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    /* Removed solid background to show body background */
+    /* Move background here and optimize for mobile */
+    background: var(--bg);
+    background-image: linear-gradient(rgba(7, 10, 15, 0.88), rgba(7, 10, 15, 0.88)), url('https://i.ibb.co/LhyM4vT/esm-bg.jpg');
+    /* Use a placeholder or the provided image URL */
+    background-attachment: fixed;
+    background-position: center 20%;
+    /* Focus on the top/center area where logos usually are */
+    background-size: cover;
 }
 
 /* ---- MAIN CONTENT ---- */
