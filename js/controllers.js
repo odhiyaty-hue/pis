@@ -4,18 +4,6 @@ import {
     query, where, orderBy, getDoc
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-const IMGBB_KEY = "9bb81c4b08af039ce7c30f5b05deb2ea";
-
-// ---- IMGBB UPLOAD ----
-async function uploadImage(file) {
-    const fd = new FormData();
-    fd.append('image', file);
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.success) return data.data.url;
-    throw new Error('فشل رفع الصورة');
-}
-
 // ---- DB HELPERS ----
 const playersColl = collection(db, 'players');
 const groupsColl = collection(db, 'groups');
@@ -41,7 +29,7 @@ const DB = {
     createGroup: (name, players) => addDoc(groupsColl, { name, players: players.map(p => p.id), createdAt: new Date() }),
     assignGroup: (id, group) => updateDoc(doc(db, 'players', id), { group }),
     getGroups: () => getDocs(groupsColl).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))),
-    createMatch: (d) => addDoc(matchesColl, { ...d, score1: null, score2: null, winnerId: null, screenshotUrl: null, status: 'pending_result', stage: d.stage || 'groups', createdAt: new Date() }),
+    createMatch: (d) => addDoc(matchesColl, { ...d, score1: null, score2: null, winnerId: null, status: 'pending_result', stage: d.stage || 'groups', createdAt: new Date() }),
     getMatchesByStage: (stage) => getDocs(query(matchesColl, where('stage', '==', stage))).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))),
     updateMatch: (id, data) => updateDoc(doc(db, 'matches', id), data)
 };
@@ -55,6 +43,15 @@ document.addEventListener('pageLoaded', e => {
 // ========================
 // REGISTER
 // ========================
+async function uploadImage(file) {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=9bb81c4b08af039ce7c30f5b05deb2ea`, { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) return data.data.url;
+    throw new Error('فشل رفع الصورة');
+}
+
 function initRegister() {
     const form = document.getElementById('register-form');
     const fileInput = document.getElementById('avatar-file');
@@ -107,21 +104,23 @@ function initLogin() {
 // ========================
 // ADMIN
 // ========================
+let currentAdminStage = 'groups';
+
 async function initAdmin() {
     const pList = document.getElementById('admin-pending-players');
-    const mList = document.getElementById('admin-pending-matches');
     if (!pList) return;
 
     UI.showLoader();
     try {
+        // Load pending players
         const all = await DB.getAllPlayers();
         const pending = all.filter(p => p.status === 'pending');
         document.getElementById('pending-count').innerText = pending.length || '';
 
         pList.innerHTML = pending.length === 0
-            ? '<div class="empty-state"><i class="fas fa-check-circle"></i><p>لا توجد طلبات جديدة</p></div>'
+            ? '<div class="empty-state" style="padding:20px 0;"><i class="fas fa-check-circle"></i><p>لا توجد طلبات جديدة</p></div>'
             : pending.map(p => `
-            <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
                 <div style="display:flex;gap:10px;align-items:center;">
                     <img src="${p.avatarUrl}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--border);">
                     <div>
@@ -129,31 +128,30 @@ async function initAdmin() {
                         <small style="color:var(--muted);">${p.realName}</small>
                     </div>
                 </div>
-                <button onclick="approvePlayer('${p.id}')" style="background:var(--neon);color:#000;border:none;border-radius:10px;padding:8px 14px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;">قبول</button>
+                <button onclick="approvePlayer('${p.id}')" style="background:var(--neon);color:#000;border:none;border-radius:10px;padding:8px 14px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;white-space:nowrap;">قبول</button>
             </div>`).join('');
 
-        const g = await DB.getMatchesByStage('groups');
-        const k = await DB.getMatchesByStage('knockout');
-        const toApprove = [...g, ...k].filter(m => m.status === 'pending_approval');
-        document.getElementById('matches-count').innerText = toApprove.length || '';
-
-        mList.innerHTML = toApprove.length === 0
-            ? '<div class="empty-state"><i class="fas fa-check-circle"></i><p>لا توجد نتائج جديدة</p></div>'
-            : toApprove.map(m => `
-            <div class="card" style="margin-bottom:8px;">
-                <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px;">${m.group}</div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                    <span style="font-weight:700;">${m.player1Name}</span>
-                    <span style="font-size:22px;font-weight:900;color:var(--neon);">${m.score1} : ${m.score2}</span>
-                    <span style="font-weight:700;">${m.player2Name}</span>
-                </div>
-                <button onclick="viewProof('${m.id}','${m.screenshotUrl}','${m.player1Id}','${m.player2Id}',${m.score1},${m.score2},'${m.stage}')" style="background:var(--neon-blue);color:#000;border:none;border-radius:10px;width:100%;padding:9px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;">
-                    <i class="fas fa-eye"></i> عرض الاعتماد
-                </button>
-            </div>`).join('');
+        // Load matches for selected stage
+        await loadAdminMatches(currentAdminStage);
 
     } catch (e) { console.error(e); UI.toast('خطأ في تحميل البيانات', 'error'); }
     finally { UI.hideLoader(); }
+
+    // Tab buttons
+    document.getElementById('admin-tab-groups').onclick = async () => {
+        currentAdminStage = 'groups';
+        setAdminTab('groups');
+        UI.showLoader();
+        await loadAdminMatches('groups');
+        UI.hideLoader();
+    };
+    document.getElementById('admin-tab-knockout').onclick = async () => {
+        currentAdminStage = 'knockout';
+        setAdminTab('knockout');
+        UI.showLoader();
+        await loadAdminMatches('knockout');
+        UI.hideLoader();
+    };
 
     // Generate Groups
     document.getElementById('btn-generate-groups').onclick = async () => {
@@ -175,7 +173,7 @@ async function initAdmin() {
                         await DB.createMatch({ group: gName, player1Id: chunk[a].id, player2Id: chunk[b].id, player1Name: chunk[a].gameName, player2Name: chunk[b].gameName });
             }
             UI.toast('تم إنشاء المجموعات والمباريات بنجاح');
-            initAdmin();
+            await loadAdminMatches(currentAdminStage);
         } catch (e) { UI.toast(e.message, 'error'); }
         finally { UI.hideLoader(); }
     };
@@ -202,6 +200,9 @@ async function initAdmin() {
                 if (qualified[i] && qualified[i + 1])
                     await DB.createMatch({ stage: 'knockout', player1Id: qualified[i].id, player2Id: qualified[i + 1].id, player1Name: qualified[i].gameName, player2Name: qualified[i + 1].gameName, group: 'الإقصاء' });
             UI.toast('تم إنشاء مباريات الإقصاء');
+            currentAdminStage = 'knockout';
+            setAdminTab('knockout');
+            await loadAdminMatches('knockout');
         } catch (e) { UI.toast(e.message, 'error'); }
         finally { UI.hideLoader(); }
     };
@@ -212,6 +213,74 @@ async function initAdmin() {
         document.getElementById('nav-admin')?.classList.add('hidden');
         navigate('/');
     };
+
+    // Result Modal Save
+    document.getElementById('btn-save-result').onclick = async () => {
+        const id = document.getElementById('result-match-id').value;
+        const p1Id = document.getElementById('result-p1-id').value;
+        const p2Id = document.getElementById('result-p2-id').value;
+        const stage = document.getElementById('result-stage').value;
+        const s1 = parseInt(document.getElementById('result-score1').value);
+        const s2 = parseInt(document.getElementById('result-score2').value);
+        if (isNaN(s1) || isNaN(s2)) return UI.toast('أدخل النتيجة', 'error');
+        UI.showLoader();
+        try {
+            await DB.updateMatch(id, { score1: s1, score2: s2, status: 'approved' });
+            // Update stats for groups stage
+            if (stage === 'groups') {
+                let p1pts = 0, p2pts = 0;
+                if (s1 > s2) p1pts = 3; else if (s2 > s1) p2pts = 3; else { p1pts = 1; p2pts = 1; }
+                await DB.addStats(p1Id, p1pts, s1, s2);
+                await DB.addStats(p2Id, p2pts, s2, s1);
+            }
+            UI.toast('تم حفظ النتيجة وتحديث النقاط!');
+            document.getElementById('result-entry-modal').classList.add('hidden');
+            await loadAdminMatches(stage);
+        } catch (e) { UI.toast(e.message, 'error'); }
+        finally { UI.hideLoader(); }
+    };
+
+    document.getElementById('btn-cancel-result').onclick = () =>
+        document.getElementById('result-entry-modal').classList.add('hidden');
+}
+
+function setAdminTab(active) {
+    const g = document.getElementById('admin-tab-groups');
+    const k = document.getElementById('admin-tab-knockout');
+    if (active === 'groups') {
+        g.className = 'btn btn-primary'; g.style.cssText = 'flex:1;margin:0;padding:8px;font-size:13px;';
+        k.className = 'btn btn-outline'; k.style.cssText = 'flex:1;margin:0;padding:8px;font-size:13px;border-color:var(--muted);color:var(--muted);';
+    } else {
+        k.className = 'btn btn-blue'; k.style.cssText = 'flex:1;margin:0;padding:8px;font-size:13px;';
+        g.className = 'btn btn-outline'; g.style.cssText = 'flex:1;margin:0;padding:8px;font-size:13px;border-color:var(--muted);color:var(--muted);';
+    }
+}
+
+async function loadAdminMatches(stage) {
+    const container = document.getElementById('admin-matches-list');
+    const matches = await DB.getMatchesByStage(stage);
+    if (!matches.length) {
+        container.innerHTML = '<div class="empty-state" style="padding:20px 0;"><i class="fas fa-futbol"></i><p>لا توجد مباريات بعد</p></div>';
+        return;
+    }
+    container.innerHTML = matches.map(m => {
+        const done = m.status === 'approved';
+        const scoreText = done ? `<span style="color:var(--neon);font-size:20px;font-weight:900;">${m.score1} : ${m.score2}</span>` : `<span style="color:var(--muted);font-size:13px;">لم تنتهِ</span>`;
+        return `
+        <div style="padding:12px 0; border-bottom:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                <span style="font-weight:700;font-size:14px;flex:1;text-align:right;">${m.player1Name}</span>
+                ${scoreText}
+                <span style="font-weight:700;font-size:14px;flex:1;text-align:left;">${m.player2Name}</span>
+            </div>
+            <div style="text-align:center;margin-top:8px;">
+                <button onclick="openResultEntry('${m.id}','${m.player1Id}','${m.player2Id}','${m.player1Name}','${m.player2Name}','${stage}',${m.score1 ?? 0},${m.score2 ?? 0})"
+                    style="background:${done ? 'var(--bg-glass)' : 'var(--neon-blue)'};color:${done ? 'var(--muted)' : '#000'};border:${done ? '1px solid var(--border)' : 'none'};border-radius:10px;padding:7px 18px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;font-size:13px;">
+                    <i class="fas fa-${done ? 'pen' : 'plus'}"></i> ${done ? 'تعديل النتيجة' : 'إدخال النتيجة'}
+                </button>
+            </div>
+        </div>`;
+    }).join('');
 }
 
 window.approvePlayer = async (id) => {
@@ -221,35 +290,17 @@ window.approvePlayer = async (id) => {
     finally { UI.hideLoader(); }
 };
 
-window.viewProof = (matchId, imgUrl, p1Id, p2Id, s1, s2, stage) => {
-    const modal = document.getElementById('admin-match-modal');
-    document.getElementById('admin-proof-img').src = imgUrl;
-    modal.classList.remove('hidden');
-
-    document.getElementById('btn-approve-match').onclick = async () => {
-        UI.showLoader();
-        try {
-            await DB.updateMatch(matchId, { status: 'approved' });
-            if (stage === 'groups') {
-                let p1pts = 0, p2pts = 0;
-                if (s1 > s2) p1pts = 3; else if (s2 > s1) p2pts = 3; else { p1pts = 1; p2pts = 1; }
-                await DB.addStats(p1Id, p1pts, s1, s2);
-                await DB.addStats(p2Id, p2pts, s2, s1);
-            }
-            UI.toast('تم اعتماد النتيجة وتحديث النقاط!');
-            modal.classList.add('hidden'); initAdmin();
-        } catch (e) { UI.toast('خطأ', 'error'); }
-        finally { UI.hideLoader(); }
-    };
-
-    document.getElementById('btn-reject-match').onclick = async () => {
-        UI.showLoader();
-        try { await DB.updateMatch(matchId, { status: 'pending_result', screenshotUrl: null, score1: null, score2: null }); UI.toast('تم رفض النتيجة'); modal.classList.add('hidden'); initAdmin(); }
-        catch (e) { UI.toast('خطأ', 'error'); }
-        finally { UI.hideLoader(); }
-    };
-
-    document.getElementById('btn-close-admin-modal').onclick = () => modal.classList.add('hidden');
+window.openResultEntry = (matchId, p1Id, p2Id, p1Name, p2Name, stage, s1, s2) => {
+    document.getElementById('result-match-id').value = matchId;
+    document.getElementById('result-p1-id').value = p1Id;
+    document.getElementById('result-p2-id').value = p2Id;
+    document.getElementById('result-stage').value = stage;
+    document.getElementById('result-p1-label').innerText = p1Name;
+    document.getElementById('result-p2-label').innerText = p2Name;
+    document.getElementById('result-match-label').innerText = `${p1Name} ضد ${p2Name}`;
+    document.getElementById('result-score1').value = s1 || 0;
+    document.getElementById('result-score2').value = s2 || 0;
+    document.getElementById('result-entry-modal').classList.remove('hidden');
 };
 
 // ========================
@@ -287,7 +338,7 @@ async function initGroups() {
                         <tr>
                             <td style="text-align:right;">
                                 <div style="display:flex;align-items:center;gap:8px;">
-                                    ${i === 0 ? '<span style="color:gold;font-size:11px;">🥇</span>' : i === 1 ? '<span style="font-size:11px;">🥈</span>' : ''}
+                                    ${i === 0 ? '🥇' : i === 1 ? '🥈' : ''}
                                     <img src="${p.avatarUrl}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">
                                     <span>${p.gameName}</span>
                                 </div>
@@ -306,7 +357,7 @@ async function initGroups() {
 }
 
 // ========================
-// MATCHES
+// MATCHES (Public View - Read Only)
 // ========================
 async function initMatches() {
     const container = document.getElementById('matches-container');
@@ -317,69 +368,40 @@ async function initMatches() {
             return;
         }
         container.innerHTML = list.map(m => {
-            const sColor = m.status === 'approved' ? 'var(--neon)' : m.status === 'pending_approval' ? '#ffc800' : 'var(--muted)';
-            const sText = m.status === 'approved' ? 'اكتملت' : m.status === 'pending_approval' ? 'قيد المراجعة' : 'لم تلعب';
+            const done = m.status === 'approved';
+            const sColor = done ? 'var(--neon)' : 'var(--muted)';
+            const sText = done ? 'اكتملت' : 'قيد الانتظار';
             return `
             <div class="match-card">
-                <div style="text-align:center;font-size:12px;color:${sColor};margin-bottom:10px;font-weight:600;">${m.group} · ${sText}</div>
+                <div style="text-align:center;font-size:12px;color:${sColor};margin-bottom:10px;font-weight:600;">
+                    ${m.group} · ${sText}
+                </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
                     <span style="text-align:right;flex:1;font-weight:700;font-size:15px;">${m.player1Name}</span>
-                    <span class="match-score">${m.score1 !== null ? m.score1 : '-'} : ${m.score2 !== null ? m.score2 : '-'}</span>
+                    <span class="match-score" style="color:${done ? 'var(--neon)' : 'var(--muted)'};">
+                        ${done ? `${m.score1} : ${m.score2}` : '- : -'}
+                    </span>
                     <span style="text-align:left;flex:1;font-weight:700;font-size:15px;">${m.player2Name}</span>
                 </div>
-                ${m.status === 'pending_result' ? `<button onclick="openResultModal('${m.id}','${m.player1Name}','${m.player2Name}')" style="margin-top:12px;background:transparent;border:1px solid var(--neon-blue);color:var(--neon-blue);width:100%;padding:9px;border-radius:10px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;"><i class='fas fa-upload'></i> رفع النتيجة</button>` : ''}
             </div>`;
         }).join('');
     };
 
     UI.showLoader();
     try {
-        const matches = await DB.getMatchesByStage('groups');
-        renderList(matches);
+        renderList(await DB.getMatchesByStage('groups'));
 
         document.getElementById('tab-groups').onclick = async function () {
-            this.className = 'btn btn-primary'; this.style.margin = '0'; this.style.flex = '1'; this.style.padding = '10px';
+            this.style.cssText = ''; this.className = 'btn btn-primary'; this.style.flex = '1'; this.style.margin = '0'; this.style.padding = '10px';
             const t = document.getElementById('tab-knockout');
-            t.className = 'btn btn-outline'; t.style.margin = '0'; t.style.flex = '1'; t.style.padding = '10px'; t.style.borderColor = 'var(--muted)'; t.style.color = 'var(--muted)';
-            UI.showLoader();
-            renderList(await DB.getMatchesByStage('groups'));
-            UI.hideLoader();
+            t.className = 'btn btn-outline'; t.style.cssText = 'flex:1;margin:0;padding:10px;border-color:var(--muted);color:var(--muted);';
+            UI.showLoader(); renderList(await DB.getMatchesByStage('groups')); UI.hideLoader();
         };
-
         document.getElementById('tab-knockout').onclick = async function () {
-            this.className = 'btn btn-blue'; this.style.margin = '0'; this.style.flex = '1'; this.style.padding = '10px';
+            this.className = 'btn btn-blue'; this.style.cssText = 'flex:1;margin:0;padding:10px;';
             const t = document.getElementById('tab-groups');
-            t.className = 'btn btn-outline'; t.style.margin = '0'; t.style.flex = '1'; t.style.padding = '10px'; t.style.borderColor = 'var(--muted)'; t.style.color = 'var(--muted)';
-            UI.showLoader();
-            renderList(await DB.getMatchesByStage('knockout'));
-            UI.hideLoader();
-        };
-
-        // Modal
-        window.openResultModal = (id, p1, p2) => {
-            document.getElementById('modal-match-id').value = id;
-            document.getElementById('modal-p1-label').innerText = `${p1} (أهداف)`;
-            document.getElementById('modal-p2-label').innerText = `${p2} (أهداف)`;
-            document.getElementById('result-modal').classList.remove('hidden');
-        };
-
-        document.getElementById('btn-close-modal').onclick = () => document.getElementById('result-modal').classList.add('hidden');
-
-        document.getElementById('btn-submit-result').onclick = async () => {
-            const id = document.getElementById('modal-match-id').value;
-            const s1 = parseInt(document.getElementById('modal-score1').value);
-            const s2 = parseInt(document.getElementById('modal-score2').value);
-            const file = document.getElementById('modal-screenshot').files[0];
-            if (isNaN(s1) || isNaN(s2) || !file) return UI.toast('أدخل النتيجة واختر صورة', 'error');
-            UI.showLoader();
-            try {
-                const screenshotUrl = await uploadImage(file);
-                await DB.updateMatch(id, { score1: s1, score2: s2, screenshotUrl, status: 'pending_approval' });
-                UI.toast('تم رفع النتيجة بنجاح وبانتظار الموافقة');
-                document.getElementById('result-modal').classList.add('hidden');
-                initMatches();
-            } catch (e) { UI.toast(e.message, 'error'); }
-            finally { UI.hideLoader(); }
+            t.className = 'btn btn-outline'; t.style.cssText = 'flex:1;margin:0;padding:10px;border-color:var(--muted);color:var(--muted);';
+            UI.showLoader(); renderList(await DB.getMatchesByStage('knockout')); UI.hideLoader();
         };
     } catch (e) { UI.toast('خطأ في تحميل المباريات', 'error'); }
     finally { UI.hideLoader(); }

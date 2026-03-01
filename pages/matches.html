@@ -11,31 +11,3 @@
         <p>جاري التحميل...</p>
     </div>
 </div>
-
-<!-- Result Upload Modal -->
-<div id="result-modal" class="modal-overlay hidden">
-    <div class="modal-box">
-        <div class="modal-handle"></div>
-        <p style="text-align:center; font-weight:700; font-size:16px; margin-bottom:16px; color:var(--neon-blue);">
-            <i class="fas fa-upload"></i> رفع نتيجة المباراة
-        </p>
-        <input type="hidden" id="modal-match-id">
-        <div class="form-group">
-            <label id="modal-p1-label">اللاعب 1 (أهداف)</label>
-            <input type="number" id="modal-score1" min="0" placeholder="0">
-        </div>
-        <div class="form-group">
-            <label id="modal-p2-label">اللاعب 2 (أهداف)</label>
-            <input type="number" id="modal-score2" min="0" placeholder="0">
-        </div>
-        <div class="form-group">
-            <label><i class="fas fa-camera"></i> Screenshot النتيجة</label>
-            <input type="file" id="modal-screenshot" accept="image/*">
-        </div>
-        <button class="btn btn-blue" id="btn-submit-result">
-            <i class="fas fa-paper-plane"></i> إرسال للمراجعة
-        </button>
-        <button class="btn btn-outline" id="btn-close-modal"
-            style="border-color:var(--muted);color:var(--muted);">إلغاء</button>
-    </div>
-</div>

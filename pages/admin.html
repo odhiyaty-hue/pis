@@ -14,7 +14,8 @@
     </button>
 </div>
 
-<div class="card">
+<!-- Players Approval -->
+<div class="card" id="section-players">
     <h3 style="font-size:15px; margin-bottom:12px;">
         <i class="fas fa-user-clock" style="color:var(--neon);"></i>
         طلبات التسجيل <span id="pending-count" style="color:var(--neon);font-size:18px;font-weight:900;"></span>
@@ -22,33 +23,52 @@
     <div id="admin-pending-players"></div>
 </div>
 
+<!-- All Matches - Admin enters results -->
 <div class="card">
     <h3 style="font-size:15px; margin-bottom:12px;">
-        <i class="fas fa-hourglass-half" style="color:var(--neon-blue);"></i>
-        نتائج بانتظار الموافقة <span id="matches-count"
-            style="color:var(--neon-blue);font-size:18px;font-weight:900;"></span>
+        <i class="fas fa-gamepad" style="color:var(--neon-blue);"></i>
+        المباريات
     </h3>
-    <div id="admin-pending-matches"></div>
+    <!-- Tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button id="admin-tab-groups" class="btn btn-primary"
+            style="flex:1;margin:0;padding:8px;font-size:13px;">المجموعات</button>
+        <button id="admin-tab-knockout" class="btn btn-outline"
+            style="flex:1;margin:0;padding:8px;font-size:13px;border-color:var(--muted);color:var(--muted);">الإقصاء</button>
+    </div>
+    <div id="admin-matches-list"></div>
 </div>
 
-<!-- Admin Match Modal -->
-<div id="admin-match-modal" class="modal-overlay hidden">
+<!-- Result Entry Modal -->
+<div id="result-entry-modal" class="modal-overlay hidden">
     <div class="modal-box">
         <div class="modal-handle"></div>
-        <p style="text-align:center; font-weight:700; font-size:16px; margin-bottom:16px; color:var(--neon);">
-            <i class="fas fa-image"></i> صورة النتيجة
+        <p style="text-align:center;font-weight:700;font-size:16px;margin-bottom:4px;color:var(--neon);">
+            <i class="fas fa-pencil"></i> إدخال نتيجة المباراة
         </p>
-        <img id="admin-proof-img" src=""
-            style="width:100%; border-radius:12px; margin-bottom:16px; max-height:260px; object-fit:contain;">
-        <button class="btn btn-primary" id="btn-approve-match">
-            <i class="fas fa-check"></i> موافقة وتحديث النقاط
+        <p id="result-match-label" style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px;"></p>
+        <input type="hidden" id="result-match-id">
+        <input type="hidden" id="result-p1-id">
+        <input type="hidden" id="result-p2-id">
+        <input type="hidden" id="result-stage">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;">
+            <div class="form-group" style="flex:1;margin:0;">
+                <label id="result-p1-label" style="font-size:13px;color:var(--neon);font-weight:700;">اللاعب 1</label>
+                <input type="number" id="result-score1" min="0" value="0"
+                    style="text-align:center;font-size:26px;font-weight:900;">
+            </div>
+            <span style="font-size:22px;color:var(--muted);font-weight:900;padding-top:18px;">:</span>
+            <div class="form-group" style="flex:1;margin:0;">
+                <label id="result-p2-label" style="font-size:13px;color:var(--neon-blue);font-weight:700;">اللاعب
+                    2</label>
+                <input type="number" id="result-score2" min="0" value="0"
+                    style="text-align:center;font-size:26px;font-weight:900;">
+            </div>
+        </div>
+        <button class="btn btn-primary" id="btn-save-result">
+            <i class="fas fa-check"></i> حفظ النتيجة وتحديث النقاط
         </button>
-        <button class="btn btn-danger" id="btn-reject-match">
-            <i class="fas fa-xmark"></i> رفض النتيجة
-        </button>
-        <button class="btn btn-outline" id="btn-close-admin-modal"
-            style="border-color:var(--muted);color:var(--muted);">
-            إغلاق
-        </button>
+        <button class="btn btn-outline" id="btn-cancel-result"
+            style="border-color:var(--muted);color:var(--muted);">إلغاء</button>
     </div>
 </div>
