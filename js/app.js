@@ -57,11 +57,13 @@ async function loadRoute(path) {
         // Update background class specifically for each route
         const container = document.getElementById('app-container');
         const pageName = path === '/' ? 'home' : path.slice(1).replace(/\//g, '-');
+        console.log('Switching to page:', pageName);
 
         // Remove previous background classes using a robust method
         const classesToRemove = Array.from(container.classList).filter(c => c.startsWith('bg-'));
         classesToRemove.forEach(cls => container.classList.remove(cls));
         container.classList.add(`bg-${pageName}`);
+        console.log('Applied class:', `bg-${pageName}`);
 
         UI.main.classList.remove('page-enter');
         void UI.main.offsetWidth;
