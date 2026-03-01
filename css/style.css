@@ -38,13 +38,40 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    /* Move background here and optimize for mobile */
     background: var(--bg);
-    /* 👇 اضغط هنا لتغيير الصورة: ضع رابط صورتك المباشر مكان الرابط أدناه 👇 */
-    background-image: linear-gradient(rgba(7, 10, 15, 0.88), rgba(7, 10, 15, 0.88)), url('https://w0.peakpx.com/wallpaper/59/17/HD-wallpaper-pes-2021-efootball-mobile.jpg');
     background-attachment: fixed;
-    background-position: center 20%;
+    background-position: center;
     background-size: cover;
+    transition: background-image 0.5s ease-in-out;
+}
+
+/* ---- PER-PAGE BACKGROUNDS (User can replace URLs with imgbb links) ---- */
+#app-container.bg-home {
+    background-image: linear-gradient(rgba(7, 10, 15, 0.88), rgba(7, 10, 15, 0.88)), url('https://w0.peakpx.com/wallpaper/59/17/HD-wallpaper-pes-2021-efootball-mobile.jpg');
+}
+
+#app-container.bg-groups {
+    background-image: linear-gradient(rgba(7, 10, 15, 0.9), rgba(7, 10, 15, 0.9)), url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1000');
+}
+
+#app-container.bg-matches {
+    background-image: linear-gradient(rgba(7, 10, 15, 0.9), rgba(7, 10, 15, 0.9)), url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=1000');
+}
+
+#app-container.bg-bracket {
+    background-image: linear-gradient(rgba(7, 10, 15, 0.9), rgba(7, 10, 15, 0.9)), url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1000');
+}
+
+#app-container.bg-admin {
+    background-image: linear-gradient(rgba(7, 10, 15, 0.92), rgba(7, 10, 15, 0.92)), url('https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&q=80&w=1000');
+}
+
+#app-container.bg-register {
+    background-image: linear-gradient(rgba(7, 10, 15, 0.88), rgba(7, 10, 15, 0.88)), url('https://w0.peakpx.com/wallpaper/59/17/HD-wallpaper-pes-2021-efootball-mobile.jpg');
+}
+
+#app-container.bg-login {
+    background-image: linear-gradient(rgba(7, 10, 15, 0.92), rgba(7, 10, 15, 0.92)), url('https://images.unsplash.com/photo-1518091043644-c1d445bb51ed?auto=format&fit=crop&q=80&w=1000');
 }
 
 /* ---- MAIN CONTENT ---- */

@@ -53,11 +53,17 @@ async function loadRoute(path) {
         const res = await fetch(file + '?v=' + Date.now());
         if (!res.ok) throw new Error('404');
         UI.main.innerHTML = await res.text();
+
+        // Update background class
+        const container = document.getElementById('app-container');
+        const pageName = path === '/' ? 'home' : path.slice(1);
+        container.className = ''; // Reset
+        container.classList.add(`bg-${pageName}`);
+
         UI.main.classList.remove('page-enter');
         void UI.main.offsetWidth;
         UI.main.classList.add('page-enter');
-        const name = path === '/' ? 'home' : path.slice(1);
-        document.dispatchEvent(new CustomEvent('pageLoaded', { detail: { page: name } }));
+        document.dispatchEvent(new CustomEvent('pageLoaded', { detail: { page: pageName } }));
     } catch (e) {
         UI.main.innerHTML = '<div class="error-page"><i class="fas fa-triangle-exclamation"></i><p>خطأ في تحميل الصفحة</p></div>';
     } finally {
