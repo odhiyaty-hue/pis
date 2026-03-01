@@ -2,8 +2,8 @@ import { DB } from './db.js';
 import { UI } from './ui.js';
 
 // ---- CONFIGURATION ----
-// TODO: Add your ImgBB API Key here
-const IMGBB_API_KEY = "dummy_key_please_replace";
+// User provided ImgBB API Key
+const IMGBB_API_KEY = "9bb81c4b08af039ce7c30f5b05deb2ea";
 
 // Generic function to upload to ImgBB
 async function uploadToImgBB(file) {
