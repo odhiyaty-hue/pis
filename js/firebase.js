@@ -1,14 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-// TODO: Replace with your actual Firebase config
+// User Provided Firebase config
 const firebaseConfig = {
-    apiKey: "AIzaSyDummyKeyReplaceThisWithYourOwn",
-    authDomain: "efootball-tourney.firebaseapp.com",
-    projectId: "efootball-tourney",
-    storageBucket: "efootball-tourney.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:abcdef123456"
+    apiKey: "AIzaSyDy_ZCcsXGU7su6xHJY54OtuLcXOB8sZNs",
+    authDomain: "pesef-43609.firebaseapp.com",
+    projectId: "pesef-43609",
+    storageBucket: "pesef-43609.firebasestorage.app",
+    messagingSenderId: "11775033418",
+    appId: "1:11775033418:web:9534cffaf99a085e07e6b3"
 };
 
 const app = initializeApp(firebaseConfig);
