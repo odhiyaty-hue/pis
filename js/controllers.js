@@ -167,6 +167,12 @@ let adminActiveTour = null;
 let adminActiveStage = 'groups';
 
 async function initAdmin() {
+    // Guard: redirect to login if not authenticated
+    if (localStorage.getItem('isAdmin') !== 'true') {
+        navigate('/login');
+        return;
+    }
+
     const el = document.getElementById('admin-tournaments-list');
     if (!el) return;
 
