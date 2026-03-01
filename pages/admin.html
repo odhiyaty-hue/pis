@@ -1,35 +1,70 @@
 <p class="page-title red"><i class="fas fa-cogs"></i> لوحة التحكم</p>
 
-<div class="card" style="border-color:rgba(255,59,107,.2); margin-bottom:12px;">
-    <h3 style="margin-bottom:12px; font-size:15px; color:var(--muted);">إدارة البطولة</h3>
-    <button class="btn btn-primary" id="btn-generate-groups">
-        <i class="fas fa-shuffle"></i> إنشاء المجموعات (قرعة)
+<!-- Section: Logout -->
+<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+    <button id="btn-logout"
+        style="background:transparent;border:1px solid var(--danger);color:var(--danger);border-radius:10px;padding:6px 14px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;">
+        <i class="fas fa-right-from-bracket"></i> خروج
     </button>
-    <button class="btn btn-outline-blue" id="btn-generate-knockout">
-        <i class="fas fa-sitemap"></i> إنشاء شجرة الإقصاء
+</div>
+
+<!-- Create Tournament -->
+<div class="card" style="border-color:rgba(0,255,136,.25);margin-bottom:14px;">
+    <h3 style="font-size:15px;color:var(--neon);margin-bottom:14px;"><i class="fas fa-plus-circle"></i> إنشاء بطولة
+        جديدة</h3>
+    <div class="form-group">
+        <label>اسم البطولة</label>
+        <input type="text" id="tour-name" placeholder="مثال: الدوري الرمضاني 2025">
+    </div>
+    <div class="grid-2">
+        <div class="form-group">
+            <label>عدد اللاعبين الكلي</label>
+            <input type="number" id="tour-max-players" value="16" min="4" max="64">
+        </div>
+        <div class="form-group">
+            <label>لاعبون في المجموعة</label>
+            <input type="number" id="tour-per-group" value="4" min="3" max="6">
+        </div>
+    </div>
+    <div class="form-group">
+        <label>نظام البطولة</label>
+        <select id="tour-system">
+            <option value="round_robin">دوري داخل المجموعات ثم إقصاء</option>
+            <option value="knockout_only">إقصاء مباشر</option>
+        </select>
+    </div>
+    <button class="btn btn-primary" id="btn-create-tournament">
+        <i class="fas fa-trophy"></i> إنشاء البطولة
     </button>
+</div>
+
+<!-- Active Tournaments -->
+<div id="admin-tournaments-list">
+    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i>
+        <p>جاري التحميل...</p>
+    </div>
+</div>
+
+<!-- Players of selected tournament -->
+<div id="admin-players-section" class="hidden">
     <div class="divider"></div>
-    <button class="btn btn-danger" id="btn-logout">
-        <i class="fas fa-right-from-bracket"></i> تسجيل الخروج
+    <h3 style="font-size:15px;color:var(--neon-blue);margin-bottom:12px;">
+        <i class="fas fa-users"></i>
+        لاعبو بطولة: <span id="admin-tour-name-label"></span>
+        <span id="admin-player-count-badge" style="color:var(--neon);font-weight:900;"></span>
+    </h3>
+    <div id="admin-players-list"></div>
+    <button id="btn-start-tournament" class="btn btn-primary hidden mt-1">
+        <i class="fas fa-flag-checkered"></i> بدء البطولة وإجراء القرعة
     </button>
 </div>
 
-<!-- Players Approval -->
-<div class="card" id="section-players">
-    <h3 style="font-size:15px; margin-bottom:12px;">
-        <i class="fas fa-user-clock" style="color:var(--neon);"></i>
-        طلبات التسجيل <span id="pending-count" style="color:var(--neon);font-size:18px;font-weight:900;"></span>
+<!-- Matches Management -->
+<div id="admin-matches-section" class="hidden">
+    <div class="divider"></div>
+    <h3 style="font-size:15px;color:var(--neon-blue);margin-bottom:12px;">
+        <i class="fas fa-gamepad"></i> المباريات
     </h3>
-    <div id="admin-pending-players"></div>
-</div>
-
-<!-- All Matches - Admin enters results -->
-<div class="card">
-    <h3 style="font-size:15px; margin-bottom:12px;">
-        <i class="fas fa-gamepad" style="color:var(--neon-blue);"></i>
-        المباريات
-    </h3>
-    <!-- Tabs -->
     <div style="display:flex;gap:8px;margin-bottom:12px;">
         <button id="admin-tab-groups" class="btn btn-primary"
             style="flex:1;margin:0;padding:8px;font-size:13px;">المجموعات</button>
@@ -51,18 +86,19 @@
         <input type="hidden" id="result-p1-id">
         <input type="hidden" id="result-p2-id">
         <input type="hidden" id="result-stage">
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:16px;">
             <div class="form-group" style="flex:1;margin:0;">
-                <label id="result-p1-label" style="font-size:13px;color:var(--neon);font-weight:700;">اللاعب 1</label>
+                <label id="result-p1-label"
+                    style="font-size:13px;color:var(--neon);font-weight:700;text-align:center;display:block;"></label>
                 <input type="number" id="result-score1" min="0" value="0"
-                    style="text-align:center;font-size:26px;font-weight:900;">
+                    style="text-align:center;font-size:28px;font-weight:900;">
             </div>
-            <span style="font-size:22px;color:var(--muted);font-weight:900;padding-top:18px;">:</span>
+            <span style="font-size:24px;color:var(--muted);font-weight:900;margin-bottom:14px;">:</span>
             <div class="form-group" style="flex:1;margin:0;">
-                <label id="result-p2-label" style="font-size:13px;color:var(--neon-blue);font-weight:700;">اللاعب
-                    2</label>
+                <label id="result-p2-label"
+                    style="font-size:13px;color:var(--neon-blue);font-weight:700;text-align:center;display:block;"></label>
                 <input type="number" id="result-score2" min="0" value="0"
-                    style="text-align:center;font-size:26px;font-weight:900;">
+                    style="text-align:center;font-size:28px;font-weight:900;">
             </div>
         </div>
         <button class="btn btn-primary" id="btn-save-result">

@@ -1,32 +1,12 @@
-<div class="hero">
-    <i class="fas fa-futbol hero-icon"></i>
-    <h1>بطولة <span>eFootball</span></h1>
-    <p>المنصة الاحترافية لتنظيم البطولات والمتابعة الكاملة للمباريات</p>
+<!-- HOME PAGE: Shows list of available tournaments -->
+<div class="hero" style="padding:20px 16px 14px;">
+    <i class="fas fa-futbol hero-icon" style="font-size:56px;"></i>
+    <h1 style="font-size:22px;">بطولات <span>eFootball</span></h1>
+    <p style="font-size:13px;">اختر البطولة التي تريد الانضمام إليها</p>
 </div>
 
-<button class="btn btn-primary" onclick="navigate('/register')">
-    <i class="fas fa-user-plus"></i> سجّل في البطولة الآن
-</button>
-
-<div class="grid-2 mt-2">
-    <div class="card glow" onclick="navigate('/groups')" style="cursor:pointer;text-align:center;">
-        <i class="fas fa-users" style="font-size:28px;color:var(--neon);display:block;margin-bottom:8px;"></i>
-        <strong>المجموعات</strong>
-        <p class="text-muted" style="font-size:12px;margin-top:4px;">الترتيب والنقاط</p>
-    </div>
-    <div class="card glow-blue" onclick="navigate('/matches')" style="cursor:pointer;text-align:center;">
-        <i class="fas fa-gamepad" style="font-size:28px;color:var(--neon-blue);display:block;margin-bottom:8px;"></i>
-        <strong>المباريات</strong>
-        <p class="text-muted" style="font-size:12px;margin-top:4px;">النتائج والمواجهات</p>
-    </div>
-    <div class="card" onclick="navigate('/bracket')" style="cursor:pointer;text-align:center;">
-        <i class="fas fa-sitemap" style="font-size:28px;color:#ffc800;display:block;margin-bottom:8px;"></i>
-        <strong>الإقصاء</strong>
-        <p class="text-muted" style="font-size:12px;margin-top:4px;">شجرة البطولة</p>
-    </div>
-    <div class="card" onclick="navigate('/login')" style="cursor:pointer;text-align:center;">
-        <i class="fas fa-cogs" style="font-size:28px;color:var(--danger);display:block;margin-bottom:8px;"></i>
-        <strong>الإدارة</strong>
-        <p class="text-muted" style="font-size:12px;margin-top:4px;">للمشرف فقط</p>
+<div id="tournaments-list">
+    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i>
+        <p>جاري التحميل...</p>
     </div>
 </div>

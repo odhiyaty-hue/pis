@@ -13,15 +13,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-// ---- UI HELPERS ----
+// ---- UI ----
 export const UI = {
     get loader() { return document.getElementById('loader'); },
     get main() { return document.getElementById('main-content'); },
     get toasts() { return document.getElementById('toast-container'); },
-
     showLoader() { this.loader.classList.remove('hidden'); },
     hideLoader() { this.loader.classList.add('hidden'); },
-
     toast(msg, type = 'success') {
         const t = document.createElement('div');
         t.className = `toast ${type}`;
@@ -44,8 +42,8 @@ const ROUTES = {
 
 function updateNav(path) {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    const active = document.querySelector(`.nav-item[data-path="${path}"]`);
-    if (active) active.classList.add('active');
+    const a = document.querySelector(`.nav-item[data-path="${path}"]`);
+    if (a) a.classList.add('active');
 }
 
 async function loadRoute(path) {
@@ -62,7 +60,6 @@ async function loadRoute(path) {
         document.dispatchEvent(new CustomEvent('pageLoaded', { detail: { page: name } }));
     } catch (e) {
         UI.main.innerHTML = '<div class="error-page"><i class="fas fa-triangle-exclamation"></i><p>خطأ في تحميل الصفحة</p></div>';
-        UI.toast('خطأ في تحميل الصفحة', 'error');
     } finally {
         UI.hideLoader();
     }
@@ -74,24 +71,20 @@ export function navigate(path) {
 }
 window.navigate = navigate;
 
-// Boot
 window.addEventListener('hashchange', () => {
     const path = window.location.hash.slice(1) || '/';
     updateNav(path);
     loadRoute(path);
 });
 
-// Admin check
 if (localStorage.getItem('isAdmin') === 'true') {
     document.getElementById('nav-admin')?.classList.remove('hidden');
 }
 
-// Nav click handlers
 document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.path));
 });
 
-// Initial route
 const initPath = window.location.hash.slice(1) || '/';
 window.location.hash = '#' + initPath;
 updateNav(initPath);
