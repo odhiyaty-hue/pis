@@ -40,11 +40,10 @@ body {
     position: relative;
     /* Move background here and optimize for mobile */
     background: var(--bg);
-    background-image: linear-gradient(rgba(7, 10, 15, 0.88), rgba(7, 10, 15, 0.88)), url('https://i.ibb.co/LhyM4vT/esm-bg.jpg');
-    /* Use a placeholder or the provided image URL */
+    /* 👇 اضغط هنا لتغيير الصورة: ضع رابط صورتك المباشر مكان الرابط أدناه 👇 */
+    background-image: linear-gradient(rgba(7, 10, 15, 0.88), rgba(7, 10, 15, 0.88)), url('https://w0.peakpx.com/wallpaper/59/17/HD-wallpaper-pes-2021-efootball-mobile.jpg');
     background-attachment: fixed;
     background-position: center 20%;
-    /* Focus on the top/center area where logos usually are */
     background-size: cover;
 }
 
