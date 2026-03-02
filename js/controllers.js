@@ -46,7 +46,18 @@ const DB = {
         const snap = await getDoc(ref);
         if (snap.exists()) {
             const d = snap.data();
-            await updateDoc(ref, { points: (d.points || 0) + pts, goalsFor: (d.goalsFor || 0) + gf, goalsAgainst: (d.goalsAgainst || 0) + ga });
+            const newPoints = Number(d.points || 0) + pts;
+            const newGoalsFor = Number(d.goalsFor || 0) + gf;
+            const newGoalsAgainst = Number(d.goalsAgainst || 0) + ga;
+            // We allow negative temporarily during multi-step updates if needed, 
+            // but usually stats should be >= 0. However, Math.max(0, ...) 
+            // might prevent correct subtraction if the state was already inconsistent.
+            // Let's just trust the arithmetic for the update.
+            await updateDoc(ref, { 
+                points: newPoints, 
+                goalsFor: newGoalsFor, 
+                goalsAgainst: newGoalsAgainst 
+            });
         }
     },
 
@@ -312,17 +323,47 @@ window.selectAdminTour = async (id) => {
         if (isNaN(s1) || isNaN(s2)) return UI.toast('أدخل النتيجة', 'error');
         UI.showLoader();
         try {
-            await DB.updateMatch(mId, { score1: s1, score2: s2, status: 'approved' });
+            const matchRef = doc(db, 'matches', mId);
+            const matchSnap = await getDoc(matchRef);
+            if (!matchSnap.exists()) throw new Error('المباراة غير موجودة');
+            const oldMatch = matchSnap.data();
+
+            await updateDoc(matchRef, { score1: s1, score2: s2, status: 'approved' });
+
             if (stage === 'groups') {
+                const oldStatus = oldMatch.status;
+                
+                // 1. If match was already approved, UNDO old stats
+                if (oldStatus === 'approved') {
+                    const os1 = Number(oldMatch.score1 ?? 0);
+                    const os2 = Number(oldMatch.score2 ?? 0);
+                    let oldP1pts = 0, oldP2pts = 0;
+                    if (os1 > os2) oldP1pts = 3; 
+                    else if (os2 > os1) oldP2pts = 3; 
+                    else { oldP1pts = 1; oldP2pts = 1; }
+                    
+                    await DB.addStats(p1Id, -oldP1pts, -os1, -os2);
+                    await DB.addStats(p2Id, -oldP2pts, -os2, -os1);
+                }
+
+                // 2. Add NEW stats
                 let p1pts = 0, p2pts = 0;
-                if (s1 > s2) p1pts = 3; else if (s2 > s1) p2pts = 3; else { p1pts = 1; p2pts = 1; }
-                await DB.addStats(p1Id, p1pts, s1, s2);
-                await DB.addStats(p2Id, p2pts, s2, s1);
+                const ns1 = Number(s1);
+                const ns2 = Number(s2);
+                if (ns1 > ns2) p1pts = 3; 
+                else if (ns2 > ns1) p2pts = 3; 
+                else { p1pts = 1; p2pts = 1; }
+                
+                await DB.addStats(p1Id, p1pts, ns1, ns2);
+                await DB.addStats(p2Id, p2pts, ns2, ns1);
             }
-            UI.toast('تم حفظ النتيجة!');
+            UI.toast('تم حفظ النتيجة وتحديث النقاط بنجاح!');
             document.getElementById('result-entry-modal').classList.add('hidden');
             await loadAdminMatches(adminActiveTour, stage);
-        } catch (e) { UI.toast(e.message, 'error'); }
+        } catch (e) { 
+            console.error('Error saving match results:', e);
+            UI.toast('حدث خطأ أثناء حفظ النتيجة', 'error'); 
+        }
         finally { UI.hideLoader(); }
     };
     document.getElementById('btn-cancel-result').onclick = () => document.getElementById('result-entry-modal').classList.add('hidden');
