@@ -1,4 +1,5 @@
 import { db, UI, navigate } from './app.js';
+import { AI } from './ai.js';
 import {
     collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
     query, where, orderBy, getDoc, serverTimestamp
@@ -346,16 +347,14 @@ window.selectAdminTour = async (id) => {
                     await DB.addStats(p2Id, -oldP2pts, -os2, -os1);
                 }
 
-                // 2. Add NEW stats
-                let p1pts = 0, p2pts = 0;
-                const ns1 = Number(s1);
-                const ns2 = Number(s2);
-                if (ns1 > ns2) p1pts = 3; 
-                else if (ns2 > ns1) p2pts = 3; 
-                else { p1pts = 1; p2pts = 1; }
+                // 2. Add NEW stats (via Gemini AI)
+                const aiResult = await AI.analyzeResult(oldMatch.player1Name, oldMatch.player2Name, s1, s2);
+                console.log('AI Analysis Result:', aiResult);
                 
-                await DB.addStats(p1Id, p1pts, ns1, ns2);
-                await DB.addStats(p2Id, p2pts, ns2, ns1);
+                await DB.addStats(p1Id, aiResult.p1Points, aiResult.p1GoalsFor, aiResult.p1GoalsAgainst);
+                await DB.addStats(p2Id, aiResult.p2Points, aiResult.p2GoalsFor, aiResult.p2GoalsAgainst);
+                
+                if (aiResult.summary) UI.toast(aiResult.summary);
             }
             UI.toast('تم حفظ النتيجة وتحديث النقاط بنجاح!');
             document.getElementById('result-entry-modal').classList.add('hidden');
