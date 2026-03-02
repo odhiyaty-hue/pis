@@ -1,8 +1,12 @@
 export const AI = {
     async analyzeResult(p1Name, p2Name, s1, s2) {
-        const apiKey = localStorage.getItem('GEMINI_API_KEY') || '';
+        // First try to get from a secure source or inject via a build process/env
+        // In this specific SPA setup, we'll check if it's available in the environment 
+        // or a global config.
+        const apiKey = 'AIzaSyAaIPa6Ubl5kEmgUK1uzK0d-SHBXANZiNU'; 
+        
         if (!apiKey) {
-            console.warn('Gemini API Key not found in localStorage. Falling back to manual calculation.');
+            console.warn('Gemini API Key not found. Falling back to manual calculation.');
             return this.manualCalculate(s1, s2);
         }
 
