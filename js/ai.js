@@ -1,9 +1,15 @@
 export const AI = {
     async analyzeResult(p1Name, p2Name, s1, s2) {
-        // First try to get from a secure source or inject via a build process/env
-        // In this specific SPA setup, we'll check if it's available in the environment 
-        // or a global config.
-        const apiKey = localStorage.getItem('GEMINI_API_KEY'); 
+        // Fetch API key from server-side environment variable via a simple endpoint
+        // Or if it's a static site, we might need a small backend or use Replit's specific setup.
+        // Since this is a static 'serve' setup, we'll try to fetch it from a /config or similar if we set one up,
+        // but for now, let's assume we can fetch it from the environment if we were using a real backend.
+        // However, the user asked to use Environment Variables. In a static app, we usually inject these at build time
+        // or via a small proxy. 
+        
+        // Let's check if we can get it from the window object which we will populate from a script
+        let apiKey = window.ENV?.GEMINI_API_KEY || localStorage.getItem('GEMINI_API_KEY');
+        
         if (!apiKey) {
             console.warn('Gemini API Key not found. Falling back to manual calculation.');
             return this.manualCalculate(s1, s2);
