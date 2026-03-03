@@ -690,16 +690,56 @@ async function renderBracket(tid, container) {
     UI.showLoader();
     try {
         const matches = await DB.getMatchesByStage(tid, 'knockout');
-        if (!matches.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-sitemap"></i><p>لم تبدأ الأدوار الإقصائية بعد</p></div>'; return; }
-        container.innerHTML = matches.map(m => {
-            const w1 = m.status === 'approved' && m.score1 > m.score2;
-            const w2 = m.status === 'approved' && m.score2 > m.score1;
+        if (!matches.length) { 
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-sitemap"></i><p>لم تبدأ الأدوار الإقصائية بعد</p></div>'; 
+            return; 
+        }
+
+        // Group matches by round
+        const rounds = {
+            'رابع': [],
+            'نصف': [],
+            'نهائي': [],
+            'others': []
+        };
+
+        matches.forEach(m => {
+            const name = m.group || '';
+            if (name.includes('رابع')) rounds['رابع'].push(m);
+            else if (name.includes('نصف')) rounds['نصف'].push(m);
+            else if (name.includes('نهائي')) rounds['نهائي'].push(m);
+            else rounds['others'].push(m);
+        });
+
+        let html = '';
+        
+        const renderRound = (title, roundMatches) => {
+            if (roundMatches.length === 0) return '';
             return `
-            <div class="bracket-match">
-                <div class="player-row${w1 ? ' win' : ''}"><span class="name">${m.player1Name}</span><span class="score" style="color:${w1 ? 'var(--neon)' : 'var(--muted)'};">${m.score1 !== null ? m.score1 : '-'}</span></div>
-                <div class="player-row${w2 ? ' win' : ''}"><span class="name">${m.player2Name}</span><span class="score" style="color:${w2 ? 'var(--neon)' : 'var(--muted)'};">${m.score2 !== null ? m.score2 : '-'}</span></div>
-            </div>`;
-        }).join('');
-    } catch (e) { UI.toast('خطأ', 'error'); }
+                <div class="group-separator">${title}</div>
+                <div class="bracket-round">
+                    ${roundMatches.map(m => {
+                        const w1 = m.status === 'approved' && m.score1 > m.score2;
+                        const w2 = m.status === 'approved' && m.score2 > m.score1;
+                        return `
+                        <div class="bracket-match">
+                            <div class="player-row${w1 ? ' win' : ''}"><span class="name">${m.player1Name}</span><span class="score" style="color:${w1 ? 'var(--neon)' : 'var(--muted)'};">${m.score1 !== null ? m.score1 : '-'}</span></div>
+                            <div class="player-row${w2 ? ' win' : ''}"><span class="name">${m.player2Name}</span><span class="score" style="color:${w2 ? 'var(--neon)' : 'var(--muted)'};">${m.score2 !== null ? m.score2 : '-'}</span></div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+        };
+
+        html += renderRound('دور الثمانية', rounds['رابع']);
+        html += renderRound('نصف النهائي', rounds['نصف']);
+        html += renderRound('النهائي', rounds['نهائي']);
+        html += renderRound('أدوار أخرى', rounds['others']);
+
+        container.innerHTML = html;
+    } catch (e) { 
+        console.error(e);
+        UI.toast('خطأ في تحميل الشجرة', 'error'); 
+    }
     finally { UI.hideLoader(); }
 }

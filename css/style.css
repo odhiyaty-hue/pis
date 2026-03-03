@@ -551,12 +551,18 @@ body {
 }
 
 /* ---- BRACKET ---- */
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
 .bracket-match {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
-    margin-bottom: 12px;
 }
 
 .bracket-match .player-row {
