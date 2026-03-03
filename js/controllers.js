@@ -305,6 +305,16 @@ window.selectAdminTour = async (id) => {
             await loadAdminMatches(id, 'groups');
             document.getElementById('admin-tab-groups').onclick = async () => { adminActiveStage = 'groups'; setAdminTab('groups'); await loadAdminMatches(id, 'groups'); };
             document.getElementById('admin-tab-knockout').onclick = async () => { adminActiveStage = 'knockout'; setAdminTab('knockout'); await loadAdminMatches(id, 'knockout'); };
+
+            // Check if knockout button should be shown
+            const koActions = document.getElementById('admin-knockout-actions');
+            const koMatches = await DB.getMatchesByStage(id, 'knockout');
+            if (koMatches.length === 0) {
+                koActions.classList.remove('hidden');
+                document.getElementById('btn-start-knockout').onclick = () => startKnockout(id, tour);
+            } else {
+                koActions.classList.add('hidden');
+            }
         } else {
             mSection.classList.add('hidden');
         }
@@ -392,6 +402,56 @@ async function startTournament(tid, tour) {
         await selectAdminTour(tid);
     } catch (e) { UI.toast(e.message, 'error'); }
     finally { UI.hideLoader(); }
+}
+
+async function startKnockout(tid, tour) {
+    if (!confirm('هل أنت متأكد من بدء الدور الإقصائي؟ سيتم اختيار أول وثاني كل مجموعة للقرعة.')) return;
+    UI.showLoader();
+    try {
+        const players = await DB.getApproved(tid);
+        const groups = await DB.getGroups(tid);
+        const qualified = [];
+
+        for (const g of groups) {
+            const groupPlayers = players.filter(p => p.group === g.name);
+            // Sort by points, then goal difference
+            groupPlayers.sort((a, b) => {
+                if ((b.points || 0) !== (a.points || 0)) return (b.points || 0) - (a.points || 0);
+                const diffA = (a.goalsFor || 0) - (a.goalsAgainst || 0);
+                const diffB = (b.goalsFor || 0) - (b.goalsAgainst || 0);
+                return diffB - diffA;
+            });
+            // Take top 2
+            qualified.push(...groupPlayers.slice(0, 2));
+        }
+
+        if (qualified.length < 2) throw new Error('لا يوجد عدد كافٍ من المتأهلين');
+
+        // Shuffle qualified players for knockout draw
+        const shuffled = qualified.sort(() => Math.random() - 0.5);
+        for (let i = 0; i < shuffled.length; i += 2) {
+            if (i + 1 < shuffled.length) {
+                const p1 = shuffled[i];
+                const p2 = shuffled[i+1];
+                await DB.createMatch({
+                    tournamentId: tid,
+                    group: 'دور الإقصاء',
+                    stage: 'knockout',
+                    player1Id: p1.id,
+                    player2Id: p2.id,
+                    player1Name: p1.gameName,
+                    player2Name: p2.gameName
+                });
+            }
+        }
+
+        UI.toast('تمت قرعة الدور الإقصائي بنجاح! 🎉');
+        await selectAdminTour(tid);
+    } catch (e) {
+        UI.toast(e.message, 'error');
+    } finally {
+        UI.hideLoader();
+    }
 }
 
 window.approvePlayer = async (id) => {
