@@ -731,10 +731,10 @@ async function renderBracket(tid, container) {
             `;
         };
 
+        html += renderRound('ربع النهائي', rounds['others']);
         html += renderRound('دور الثمانية', rounds['رابع']);
         html += renderRound('نصف النهائي', rounds['نصف']);
         html += renderRound('النهائي', rounds['نهائي']);
-        html += renderRound('أدوار أخرى', rounds['others']);
 
         container.innerHTML = html;
     } catch (e) { 
