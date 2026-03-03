@@ -624,12 +624,26 @@ async function renderMatches(tid, stage, container) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-futbol"></i><p>لا توجد مباريات حالياً</p></div>';
         return;
     }
-    container.innerHTML = matches.map(m => {
+
+    // Sort by group then createdAt
+    matches.sort((a, b) => {
+        if (a.group !== b.group) return a.group.localeCompare(b.group);
+        return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+    });
+
+    let html = '';
+    let lastGroup = '';
+
+    matches.forEach(m => {
+        if (m.group !== lastGroup) {
+            html += `<div class="group-separator">${m.group}</div>`;
+            lastGroup = m.group;
+        }
         const done = m.status === 'approved';
-        return `
+        html += `
         <div class="match-card">
             <div style="text-align:center;font-size:12px;color:${done ? 'var(--neon)' : 'var(--muted)'};margin-bottom:10px;font-weight:600;">
-                ${m.group || ''} · ${done ? 'اكتملت' : 'قيد الانتظار'}
+                ${done ? 'اكتملت' : 'قيد الانتظار'}
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
                 <span style="text-align:right;flex:1;font-weight:700;font-size:15px;">${m.player1Name}</span>
@@ -637,7 +651,8 @@ async function renderMatches(tid, stage, container) {
                 <span style="text-align:left;flex:1;font-weight:700;font-size:15px;">${m.player2Name}</span>
             </div>
         </div>`;
-    }).join('');
+    });
+    container.innerHTML = html;
 }
 
 // ========================

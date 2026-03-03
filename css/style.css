@@ -331,6 +331,18 @@ body {
 }
 
 /* ---- MATCH CARDS ---- */
+.group-separator {
+    text-align: center;
+    padding: 8px;
+    margin: 20px 0 10px;
+    background: var(--neon-dim);
+    color: var(--neon);
+    font-weight: 800;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
 .match-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
