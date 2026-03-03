@@ -662,15 +662,18 @@ body {
 .semi-final-card::after {
     content: 'SEMI FINAL';
     position: absolute;
-    top: 5px;
-    right: -25px;
-    background: var(--neon);
-    color: #000;
-    font-size: 9px;
+    top: 2px;
+    right: 5px;
+    color: var(--neon);
+    font-size: 8px;
     font-weight: 900;
-    padding: 2px 30px;
-    transform: rotate(45deg);
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.semi-final-card .player-row {
+    position: relative;
+    z-index: 1;
 }
 
 .semi-final-card .player-row.win {
