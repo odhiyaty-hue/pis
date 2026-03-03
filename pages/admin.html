@@ -106,6 +106,16 @@
                     style="text-align:center;font-size:28px;font-weight:900;">
             </div>
         </div>
+
+        <!-- Gemini API Key Setting -->
+        <div class="form-group" style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+            <label style="font-size:12px; color:var(--muted);"><i class="fas fa-key"></i> مفتاح Gemini API (اختياري للتحليل)</label>
+            <div style="display:flex; gap:8px;">
+                <input type="password" id="gemini-api-key-input" placeholder="أدخل المفتاح هنا..." style="font-size:12px; padding:8px;">
+                <button id="btn-save-gemini-key" class="btn" style="width:auto; padding:0 12px; background:var(--muted); color:#fff; font-size:12px;">حفظ</button>
+            </div>
+        </div>
+
         <button class="btn btn-primary" id="btn-save-result">
             <i class="fas fa-check"></i> حفظ النتيجة وتحديث النقاط
         </button>

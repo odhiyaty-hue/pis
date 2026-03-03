@@ -323,58 +323,76 @@ window.selectAdminTour = async (id) => {
     } catch (e) { console.error(e); UI.toast('خطأ', 'error'); }
     finally { UI.hideLoader(); }
 
-    // Result modal save
-    document.getElementById('btn-save-result').onclick = async () => {
-        const mId = document.getElementById('result-match-id').value;
-        const p1Id = document.getElementById('result-p1-id').value;
-        const p2Id = document.getElementById('result-p2-id').value;
-        const stage = document.getElementById('result-stage').value;
-        const s1 = parseInt(document.getElementById('result-score1').value);
-        const s2 = parseInt(document.getElementById('result-score2').value);
-        if (isNaN(s1) || isNaN(s2)) return UI.toast('أدخل النتيجة', 'error');
-        UI.showLoader();
-        try {
-            const matchRef = doc(db, 'matches', mId);
-            const matchSnap = await getDoc(matchRef);
-            if (!matchSnap.exists()) throw new Error('المباراة غير موجودة');
-            const oldMatch = matchSnap.data();
+            // Result modal save
+            document.getElementById('btn-save-result').onclick = async () => {
+                const mId = document.getElementById('result-match-id').value;
+                const p1Id = document.getElementById('result-p1-id').value;
+                const p2Id = document.getElementById('result-p2-id').value;
+                const stage = document.getElementById('result-stage').value;
+                const s1 = parseInt(document.getElementById('result-score1').value);
+                const s2 = parseInt(document.getElementById('result-score2').value);
+                if (isNaN(s1) || isNaN(s2)) return UI.toast('أدخل النتيجة', 'error');
+                UI.showLoader();
+                try {
+                    const matchRef = doc(db, 'matches', mId);
+                    const matchSnap = await getDoc(matchRef);
+                    if (!matchSnap.exists()) throw new Error('المباراة غير موجودة');
+                    const oldMatch = matchSnap.data();
 
-            await updateDoc(matchRef, { score1: s1, score2: s2, status: 'approved' });
+                    await updateDoc(matchRef, { score1: s1, score2: s2, status: 'approved' });
 
-            if (stage === 'groups') {
-                const oldStatus = oldMatch.status;
-                
-                // 1. If match was already approved, UNDO old stats
-                if (oldStatus === 'approved') {
-                    const os1 = Number(oldMatch.score1 ?? 0);
-                    const os2 = Number(oldMatch.score2 ?? 0);
-                    let oldP1pts = 0, oldP2pts = 0;
-                    if (os1 > os2) oldP1pts = 3; 
-                    else if (os2 > os1) oldP2pts = 3; 
-                    else { oldP1pts = 1; oldP2pts = 1; }
-                    
-                    await DB.addStats(p1Id, -oldP1pts, -os1, -os2);
-                    await DB.addStats(p2Id, -oldP2pts, -os2, -os1);
+                    if (stage === 'groups') {
+                        const oldStatus = oldMatch.status;
+                        
+                        // 1. If match was already approved, UNDO old stats
+                        if (oldStatus === 'approved') {
+                            const os1 = Number(oldMatch.score1 ?? 0);
+                            const os2 = Number(oldMatch.score2 ?? 0);
+                            let oldP1pts = 0, oldP2pts = 0;
+                            if (os1 > os2) oldP1pts = 3; 
+                            else if (os2 > os1) oldP2pts = 3; 
+                            else { oldP1pts = 1; oldP2pts = 1; }
+                            
+                            await DB.addStats(p1Id, -oldP1pts, -os1, -os2);
+                            await DB.addStats(p2Id, -oldP2pts, -os2, -os1);
+                        }
+
+                        // 2. Add NEW stats (via Gemini AI)
+                        const aiResult = await AI.analyzeResult(oldMatch.player1Name, oldMatch.player2Name, s1, s2);
+                        console.log('AI Analysis Result:', aiResult);
+                        
+                        await DB.addStats(p1Id, aiResult.p1Points, aiResult.p1GoalsFor, aiResult.p1GoalsAgainst);
+                        await DB.addStats(p2Id, aiResult.p2Points, aiResult.p2GoalsFor, aiResult.p2GoalsAgainst);
+                        
+                        if (aiResult.summary) UI.toast(aiResult.summary);
+                    }
+                    UI.toast('تم حفظ النتيجة وتحديث النقاط بنجاح!');
+                    document.getElementById('result-entry-modal').classList.add('hidden');
+                    await loadAdminMatches(adminActiveTour, stage);
+                } catch (e) { 
+                    console.error('Error saving match results:', e);
+                    UI.toast('حدث خطأ أثناء حفظ النتيجة', 'error'); 
                 }
+                finally { UI.hideLoader(); }
+            };
 
-                // 2. Add NEW stats (via Gemini AI)
-                const aiResult = await AI.analyzeResult(oldMatch.player1Name, oldMatch.player2Name, s1, s2);
-                console.log('AI Analysis Result:', aiResult);
-                
-                await DB.addStats(p1Id, aiResult.p1Points, aiResult.p1GoalsFor, aiResult.p1GoalsAgainst);
-                await DB.addStats(p2Id, aiResult.p2Points, aiResult.p2GoalsFor, aiResult.p2GoalsAgainst);
-                
-                if (aiResult.summary) UI.toast(aiResult.summary);
+            // Save Gemini API Key
+            document.getElementById('btn-save-gemini-key').onclick = () => {
+                const key = document.getElementById('gemini-api-key-input').value.trim();
+                if (key) {
+                    localStorage.setItem('GEMINI_API_KEY', key);
+                    UI.toast('تم حفظ مفتاح API بنجاح');
+                    document.getElementById('gemini-api-key-input').value = '';
+                } else {
+                    UI.toast('يرجى إدخال مفتاح صحيح', 'error');
+                }
+            };
+
+            // Pre-fill API key input if exists
+            const savedKey = localStorage.getItem('GEMINI_API_KEY');
+            if (savedKey) {
+                document.getElementById('gemini-api-key-input').placeholder = 'المفتاح محفوظ (أدخل جديداً لتغييره)';
             }
-            UI.toast('تم حفظ النتيجة وتحديث النقاط بنجاح!');
-            document.getElementById('result-entry-modal').classList.add('hidden');
-            await loadAdminMatches(adminActiveTour, stage);
-        } catch (e) { 
-            console.error('Error saving match results:', e);
-            UI.toast('حدث خطأ أثناء حفظ النتيجة', 'error'); 
-        }
-        finally { UI.hideLoader(); }
-    };
     document.getElementById('btn-cancel-result').onclick = () => document.getElementById('result-entry-modal').classList.add('hidden');
 };
 
