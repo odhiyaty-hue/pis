@@ -715,6 +715,7 @@ async function renderBracket(tid, container) {
         
         const renderRound = (title, roundMatches) => {
             if (roundMatches.length === 0) return '';
+            const isSemiFinal = title === 'نصف النهائي';
             return `
                 <div class="group-separator">${title}</div>
                 <div class="bracket-round">
@@ -722,7 +723,7 @@ async function renderBracket(tid, container) {
                         const w1 = m.status === 'approved' && m.score1 > m.score2;
                         const w2 = m.status === 'approved' && m.score2 > m.score1;
                         return `
-                        <div class="bracket-match">
+                        <div class="bracket-match ${isSemiFinal ? 'semi-final-card' : ''}">
                             <div class="player-row${w1 ? ' win' : ''}"><span class="name">${m.player1Name}</span><span class="score" style="color:${w1 ? 'var(--neon)' : 'var(--muted)'};">${m.score1 !== null ? m.score1 : '-'}</span></div>
                             <div class="player-row${w2 ? ' win' : ''}"><span class="name">${m.player2Name}</span><span class="score" style="color:${w2 ? 'var(--neon)' : 'var(--muted)'};">${m.score2 !== null ? m.score2 : '-'}</span></div>
                         </div>`;

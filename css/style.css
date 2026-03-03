@@ -650,6 +650,37 @@ body {
     margin-bottom: 16px;
 }
 
+.semi-final-card {
+    border: 2px solid transparent;
+    background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+                linear-gradient(135deg, var(--neon), var(--neon-blue)) border-box !important;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.semi-final-card::after {
+    content: 'SEMI FINAL';
+    position: absolute;
+    top: 5px;
+    right: -25px;
+    background: var(--neon);
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 30px;
+    transform: rotate(45deg);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.semi-final-card .player-row.win {
+    background: rgba(0, 255, 136, 0.12) !important;
+}
+
+.semi-final-card .score {
+    text-shadow: 0 0 10px var(--neon);
+}
+
 /* ---- ANIMATIONS ---- */
 @keyframes spin {
     to {
