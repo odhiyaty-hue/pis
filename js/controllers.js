@@ -591,11 +591,33 @@ window.openFinalResultModal = async () => {
     UI.showLoader();
     try {
         const matches = await DB.getMatchesByStage(adminActiveTour, 'knockout');
-        const finalMatch = matches.find(m => m.group === 'النهائي' || m.isFinal || m.stage === 'final');
+        // Search for final match using various possible labels/flags
+        const finalMatch = matches.find(m => 
+            m.group === 'النهائي' || 
+            m.group === 'Final' || 
+            m.isFinal === true || 
+            m.stage === 'final' || 
+            m.round === 'final'
+        );
+        
         if (finalMatch) {
-            openResultEntry(finalMatch.id, finalMatch.player1Id, finalMatch.player2Id, finalMatch.player1Name, finalMatch.player2Name, finalMatch.stage, finalMatch.score1 ?? 0, finalMatch.score2 ?? 0);
+            openResultEntry(
+                finalMatch.id, 
+                finalMatch.player1Id, 
+                finalMatch.player2Id, 
+                finalMatch.player1Name, 
+                finalMatch.player2Name, 
+                finalMatch.stage, 
+                finalMatch.score1 ?? 0, 
+                finalMatch.score2 ?? 0
+            );
         } else {
-            UI.toast('لم يتم إنشاء المباراة النهائية بعد في قاعدة البيانات', 'error');
+            // If no match found, check if there are any knockout matches at all to help debug
+            if (matches.length === 0) {
+                UI.toast('لا توجد مباريات إقصائية لهذه البطولة بعد', 'error');
+            } else {
+                UI.toast('لم يتم العثور على مباراة باسم "النهائي". تأكد من اكتمال الأدوار الإقصائية.', 'error');
+            }
         }
     } catch (e) {
         console.error(e);
