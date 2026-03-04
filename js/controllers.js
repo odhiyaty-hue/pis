@@ -590,14 +590,24 @@ window.openFinalResultModal = async () => {
     if (!adminActiveTour) return UI.toast('اختر بطولة أولاً', 'error');
     UI.showLoader();
     try {
+        // First try to find any match in the knockout stage
         const matches = await DB.getMatchesByStage(adminActiveTour, 'knockout');
+        console.log('Knockout matches found:', matches);
+
+        if (matches.length === 0) {
+            UI.toast('لا توجد مباريات إقصائية لهذه البطولة بعد. يجب إجراء القرعة الإقصائية أولاً.', 'error');
+            return;
+        }
+
         // Search for final match using various possible labels/flags
+        // Sort by createdAt descending to get the latest if multiple exist, or just find the one with the highest round/index
         const finalMatch = matches.find(m => 
             m.group === 'النهائي' || 
             m.group === 'Final' || 
             m.isFinal === true || 
             m.stage === 'final' || 
-            m.round === 'final'
+            m.round === 'final' ||
+            (m.group && m.group.includes('النهائي'))
         );
         
         if (finalMatch) {
@@ -612,12 +622,9 @@ window.openFinalResultModal = async () => {
                 finalMatch.score2 ?? 0
             );
         } else {
-            // If no match found, check if there are any knockout matches at all to help debug
-            if (matches.length === 0) {
-                UI.toast('لا توجد مباريات إقصائية لهذه البطولة بعد', 'error');
-            } else {
-                UI.toast('لم يتم العثور على مباراة باسم "النهائي". تأكد من اكتمال الأدوار الإقصائية.', 'error');
-            }
+            // fallback: if we have matches but none labeled "Final", maybe it's the last one in the list?
+            // But it's safer to just inform the user.
+            UI.toast('لم يتم العثور على مباراة محددة كـ "نهائي". تأكد من وصول البطولة للمباراة النهائية.', 'error');
         }
     } catch (e) {
         console.error(e);
