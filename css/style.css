@@ -761,9 +761,107 @@ body {
     background: rgba(255, 215, 0, 0.08) !important;
 }
 
-.semi-final-card .score {
-    text-shadow: 0 0 15px #ffd700;
-    color: #ffd700 !important;
+.final-match-card {
+    background: #0f1318;
+    border: 2px solid #00ffcc;
+    border-radius: 24px;
+    padding: 30px 20px;
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0, 255, 204, 0.15);
+}
+
+.final-header {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #00ff88, #00cfff);
+    color: #000;
+    padding: 8px 30px;
+    border-radius: 0 0 20px 20px;
+    font-weight: 900;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+    z-index: 2;
+}
+
+.final-circle {
+    width: 100px;
+    height: 100px;
+    border: 3px solid #00ff88;
+    border-radius: 50%;
+    margin: 20px auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.2);
+}
+
+.final-circle::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 50%;
+}
+
+.final-players {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+}
+
+.final-player {
+    flex: 1;
+}
+
+.final-player .name {
+    font-size: 22px;
+    font-weight: 900;
+    color: #00cfff;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.final-player.p2 .name {
+    color: #00ff88;
+}
+
+.final-player .label {
+    font-size: 12px;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.final-vs {
+    font-size: 24px;
+    font-weight: 900;
+    color: #374151;
+    margin: 0 15px;
+}
+
+.final-score-row {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+.final-score-val {
+    font-size: 48px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 /* ---- ANIMATIONS ---- */

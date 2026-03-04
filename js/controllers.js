@@ -733,6 +733,35 @@ async function renderBracket(tid, container) {
         const renderRound = (title, roundMatches) => {
             if (roundMatches.length === 0) return '';
             const isSemiFinal = title === 'نصف النهائي';
+            const isFinal = title === 'النهائي';
+            
+            if (isFinal && roundMatches.length > 0) {
+                const m = roundMatches[0];
+                return `
+                    <div class="final-match-card">
+                        <div class="final-header">المباراة النهائية</div>
+                        <div class="final-circle">
+                            <i class="fas fa-trophy" style="font-size: 40px; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.5);"></i>
+                        </div>
+                        <div class="final-players">
+                            <div class="final-player p1">
+                                <span class="name">${m.player1Name}</span>
+                                <span class="label">FINALIST</span>
+                            </div>
+                            <div class="final-vs">VS</div>
+                            <div class="final-player p2">
+                                <span class="name">${m.player2Name}</span>
+                                <span class="label">FINALIST</span>
+                            </div>
+                        </div>
+                        <div class="final-score-row">
+                            <span class="final-score-val">${m.score1 !== null ? m.score1 : '-'}</span>
+                            <span class="final-score-val">${m.score2 !== null ? m.score2 : '-'}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
             return `
                 <div class="group-separator">${title}</div>
                 <div class="bracket-round">
