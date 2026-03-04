@@ -306,6 +306,11 @@ window.selectAdminTour = async (id) => {
             document.getElementById('admin-tab-groups').onclick = async () => { adminActiveStage = 'groups'; setAdminTab('groups'); await loadAdminMatches(id, 'groups'); };
             document.getElementById('admin-tab-knockout').onclick = async () => { adminActiveStage = 'knockout'; setAdminTab('knockout'); await loadAdminMatches(id, 'knockout'); };
 
+            // Show manual final if it's the right tournament
+            if (tour.name.includes("النهائي") || tour.status === 'active') {
+                document.getElementById('admin-manual-final')?.classList.remove('hidden');
+            }
+
             // Check if knockout button should be shown
             const koActions = document.getElementById('admin-knockout-actions');
             const koMatches = await DB.getMatchesByStage(id, 'knockout');
@@ -544,6 +549,18 @@ async function buildTourSelector(containerId, onSelect) {
     sel.onchange = () => onSelect(sel.value);
     return active[0].id;
 }
+
+window.openFinalResultModal = () => {
+    const modal = document.getElementById('result-entry-modal');
+    document.getElementById('result-match-label').innerText = "المباراة النهائية (يدوي)";
+    document.getElementById('result-p1-label').innerText = "djcm_djellabi_00";
+    document.getElementById('result-p2-label').innerText = "Kacimo";
+    document.getElementById('result-match-id').value = "manual_final";
+    document.getElementById('result-p1-id').value = "p1_final";
+    document.getElementById('result-p2-id').value = "p2_final";
+    document.getElementById('result-stage').value = "final";
+    modal.classList.remove('hidden');
+};
 
 // ========================
 // GROUPS

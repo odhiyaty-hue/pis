@@ -107,8 +107,24 @@ body {
     background: var(--neon-dim);
 }
 
-.vote-btn i {
-    color: var(--neon);
+.final-icon-bg {
+    width: 60px;
+    height: 60px;
+    background-image: url('/images/final_icon.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    border: 2px solid var(--neon);
+    box-shadow: 0 0 15px var(--neon-dim);
+}
+
+.admin-final-section {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px dashed var(--neon);
+    border-radius: 12px;
+    background: rgba(0, 255, 136, 0.05);
 }
 
 #app-container.bg-groups {
