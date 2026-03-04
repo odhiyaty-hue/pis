@@ -102,7 +102,6 @@ async function initHome() {
         }
         container.innerHTML = open.map(t => {
             const isActive = t.status === 'active';
-            const isFinalStage = t.currentStage === 'final'; // Assumption: stage tracking exists
             const statusColor = isActive ? 'var(--neon-blue)' : 'var(--neon)';
             const statusText = isActive ? 'جارية' : 'مفتوح التسجيل';
             const statusIcon = isActive ? 'fa-play-circle' : 'fa-door-open';
@@ -116,29 +115,7 @@ async function initHome() {
                     </span>
                 </div>
                 
-                ${isActive ? `
                 <div id="final-preview-${t.id}" class="mt-1"></div>
-                <script>
-                    (async () => {
-                        const mColl = collection(db, 'matches');
-                        const q = query(mColl, where('tournamentId', '==', '${t.id}'), where('stage', '==', 'knockout'));
-                        const snap = await getDocs(q);
-                        const finalMatch = snap.docs.map(d => d.data()).find(m => m.group === 'النهائي' || m.isFinal);
-                        if (finalMatch) {
-                            document.getElementById('final-preview-${t.id}').innerHTML = \`
-                                <div style="background:rgba(0,255,204,0.05); border:1px solid rgba(0,255,204,0.2); border-radius:12px; padding:10px; text-align:center;">
-                                    <div style="font-size:10px; color:#00ffcc; font-weight:800; margin-bottom:5px;">🏆 المباراة النهائية 🏆</div>
-                                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
-                                        <span style="color:#00cfff; font-weight:700;">\${finalMatch.player1Name}</span>
-                                        <span style="color:var(--muted); font-size:11px;">VS</span>
-                                        <span style="color:#00ff88; font-weight:700;">\${finalMatch.player2Name}</span>
-                                    </div>
-                                </div>
-                            \`;
-                        }
-                    })();
-                </script>
-                ` : ''}
 
                 <div style="display:flex;gap:16px;font-size:13px;color:var(--muted); margin-top:10px;">
                     <span><i class="fas fa-users"></i> ${t.maxPlayers} لاعب</span>
@@ -147,6 +124,34 @@ async function initHome() {
                 ${!isActive ? `<button class="btn btn-primary mt-1" style="padding:9px;" onclick="event.stopPropagation(); joinTournament('${t.id}','${t.name}')"><i class="fas fa-user-plus"></i> انضم الآن</button>` : `<button class="btn btn-outline-blue mt-1" style="padding:9px;" onclick="event.stopPropagation(); navigate('/matches')"><i class="fas fa-eye"></i> متابعة المباريات</button>`}
             </div>`;
         }).join('');
+
+        // Fetch final matches for active tournaments
+        open.filter(t => t.status === 'active').forEach(async t => {
+            try {
+                const mColl = collection(db, 'matches');
+                const q = query(mColl, where('tournamentId', '==', t.id), where('stage', '==', 'knockout'));
+                const snap = await getDocs(q);
+                const finalMatch = snap.docs.map(d => ({id: d.id, ...d.data()})).find(m => m.group === 'النهائي' || m.isFinal);
+                
+                if (finalMatch) {
+                    const el = document.getElementById(`final-preview-${t.id}`);
+                    if (el) {
+                        el.innerHTML = `
+                            <div style="background:rgba(0,255,204,0.05); border:1px solid rgba(0,255,204,0.2); border-radius:12px; padding:10px; text-align:center;">
+                                <div style="font-size:10px; color:#00ffcc; font-weight:800; margin-bottom:5px;">🏆 المباراة النهائية 🏆</div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+                                    <span style="color:#00cfff; font-weight:700;">${finalMatch.player1Name}</span>
+                                    <span style="color:var(--muted); font-size:11px;">VS</span>
+                                    <span style="color:#00ff88; font-weight:700;">${finalMatch.player2Name}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching final match for home preview:", err);
+            }
+        });
     } catch (e) { console.error(e); container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation"></i><p>خطأ في التحميل</p></div>'; }
 }
 
