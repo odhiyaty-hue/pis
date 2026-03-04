@@ -377,7 +377,8 @@ window.selectAdminTour = async (id) => {
 
                     await updateDoc(matchRef, { score1: s1, score2: s2, status: 'approved' });
 
-                    if (stage === 'groups') {
+                    // Add stats only for groups stage
+                    if (stage === 'groups' || stage === 'round_robin') {
                         const oldStatus = oldMatch.status;
                         
                         // 1. If match was already approved, UNDO old stats
@@ -553,6 +554,10 @@ async function loadAdminMatches(tid, stage) {
 }
 
 window.openResultEntry = (matchId, p1Id, p2Id, p1Name, p2Name, stage, s1, s2) => {
+    if (!matchId || matchId === 'manual_final') {
+        UI.toast('خطأ: لم يتم العثور على معرف المباراة', 'error');
+        return;
+    }
     document.getElementById('result-match-id').value = matchId;
     document.getElementById('result-p1-id').value = p1Id;
     document.getElementById('result-p2-id').value = p2Id;
