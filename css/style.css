@@ -47,7 +47,68 @@ body {
 
 /* ---- PER-PAGE BACKGROUNDS (User can replace URLs with imgbb links) ---- */
 #app-container.bg-home {
-    background-image: linear-gradient(rgba(7, 10, 15, 0.86), rgba(7, 10, 15, 0.86)), url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1000');
+    background-image: linear-gradient(rgba(7, 10, 15, 0.7), rgba(7, 10, 15, 0.8)), url('/images/final_match.png');
+    background-position: center top;
+}
+
+.final-card {
+    border: 2px solid transparent;
+    background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+                linear-gradient(135deg, #00ff88, #00cfff, #00ff88) border-box !important;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+    position: relative;
+    overflow: hidden;
+    transform: scale(1.05);
+    margin: 25px 0;
+    padding: 20px;
+}
+
+.final-badge {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, var(--neon), var(--neon-blue));
+    color: #000;
+    font-size: 12px;
+    font-weight: 900;
+    padding: 4px 15px;
+    border-radius: 0 0 10px 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.vote-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.vote-btn {
+    background: var(--bg-glass);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vote-btn:hover {
+    border-color: var(--neon);
+    background: var(--neon-dim);
+}
+
+.vote-btn i {
+    color: var(--neon);
 }
 
 #app-container.bg-groups {
