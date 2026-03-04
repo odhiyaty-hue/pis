@@ -1,5 +1,38 @@
 <p class="page-title blue"><i class="fas fa-sitemap"></i> شجرة الإقصاء</p>
 <div id="tour-selector-bracket" style="margin-bottom:12px;"></div>
+
+<!-- Final Match Special Card in Bracket -->
+<div class="card final-card animate__animated animate__pulse animate__infinite" style="margin-bottom: 20px;">
+    <div class="final-badge">المباراة النهائية</div>
+    
+    <div class="final-icon-bg"></div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+        <div style="text-align: center; flex: 1;">
+            <div style="font-weight: 900; color: var(--neon); font-size: 16px;">djcm_djellabi_00</div>
+            <div style="font-size: 10px; color: var(--muted);">FINALIST</div>
+        </div>
+        
+        <div style="padding: 0 15px; font-weight: 900; color: var(--muted);">VS</div>
+        
+        <div style="text-align: center; flex: 1;">
+            <div style="font-weight: 900; color: var(--neon-blue); font-size: 16px;">Kacimo</div>
+            <div style="font-size: 10px; color: var(--muted);">FINALIST</div>
+        </div>
+    </div>
+
+    <div class="vote-section">
+        <button class="vote-btn" onclick="toast('تم تسجيل تصويتك لـ djcm_djellabi_00')">
+            <i class="fas fa-vote-yea"></i>
+            صوت لـ Djellabi
+        </button>
+        <button class="vote-btn" onclick="toast('تم تسجيل تصويتك لـ Kacimo')">
+            <i class="fas fa-vote-yea"></i>
+            صوت لـ Kacimo
+        </button>
+    </div>
+</div>
+
 <div id="bracket-container">
     <div class="empty-state"><i class="fas fa-spinner fa-spin"></i>
         <p>جاري التحميل...</p>
