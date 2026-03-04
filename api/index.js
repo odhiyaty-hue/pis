@@ -59,7 +59,9 @@ Return a JSON object with:
   }
 });
 
-app.use(express.static('.', {
+const rootDir = path.resolve(__dirname, '..');
+
+app.use(express.static(rootDir, {
   setHeaders(res) {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -67,7 +69,7 @@ app.use(express.static('.', {
 }));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'index.html'));
+  res.sendFile(path.join(rootDir, 'index.html'));
 });
 
 module.exports = app;
