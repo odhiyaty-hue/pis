@@ -581,16 +581,23 @@ async function buildTourSelector(containerId, onSelect) {
     return active[0].id;
 }
 
-window.openFinalResultModal = () => {
-    const modal = document.getElementById('result-entry-modal');
-    document.getElementById('result-match-label').innerText = "المباراة النهائية (يدوي)";
-    document.getElementById('result-p1-label').innerText = "djcm_djellabi_00";
-    document.getElementById('result-p2-label').innerText = "Kacimo";
-    document.getElementById('result-match-id').value = "manual_final";
-    document.getElementById('result-p1-id').value = "p1_final";
-    document.getElementById('result-p2-id').value = "p2_final";
-    document.getElementById('result-stage').value = "final";
-    modal.classList.remove('hidden');
+window.openFinalResultModal = async () => {
+    if (!adminActiveTour) return UI.toast('اختر بطولة أولاً', 'error');
+    UI.showLoader();
+    try {
+        const matches = await DB.getMatchesByStage(adminActiveTour, 'knockout');
+        const finalMatch = matches.find(m => m.group === 'النهائي' || m.isFinal || m.stage === 'final');
+        if (finalMatch) {
+            openResultEntry(finalMatch.id, finalMatch.player1Id, finalMatch.player2Id, finalMatch.player1Name, finalMatch.player2Name, finalMatch.stage, finalMatch.score1 ?? 0, finalMatch.score2 ?? 0);
+        } else {
+            UI.toast('لم يتم إنشاء المباراة النهائية بعد في قاعدة البيانات', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        UI.toast('خطأ في جلب بيانات النهائي', 'error');
+    } finally {
+        UI.hideLoader();
+    }
 };
 
 // ========================
